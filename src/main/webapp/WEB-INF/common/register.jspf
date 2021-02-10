@@ -1,0 +1,20 @@
+<a class="btn btn-sm" data-toggle="collapse" id="registerButton"
+	href="#collapseEditRegister"
+	onmouseover="aregisterButtonClickFunction()" role="button"
+	aria-expanded="false" aria-controls="collapseEditRegister">
+	Registrar &nbsp; <span class="glyphicon glyphicon-edit"></span> <!-- &nbsp;
+	<span class="glyphicon glyphicon-menu-down"></span> -->
+</a>
+
+<%@ include file="filter.jspf"%>
+
+<script>
+	function registerLoadPageFunction(id) {
+		if (id != undefined) {
+			registerButtonClickFunction();
+		}
+	}
+	function registerButtonClickFunction() {
+		document.getElementById("registerButton").click();
+	}
+</script>

@@ -1,0 +1,18 @@
+<a class="btn btn-sm" data-toggle="collapse" id="filterButton"
+	href="#collapseFilterRegister"
+	role="button"
+	aria-expanded="false" aria-controls="collapseFilterRegister">
+	Filtrar &nbsp; <span class="glyphicon glyphicon-filter"></span> <!-- &nbsp;
+	<span class="glyphicon glyphicon-menu-down"></span> -->
+</a>
+
+<script>
+	function filterLoadPageFunction(option) {
+		if (option != undefined) {
+			filterButtonClickFunction();
+		}
+	}
+	function filterButtonClickFunction() {
+		document.getElementById("filterButton").click();
+	}
+</script>

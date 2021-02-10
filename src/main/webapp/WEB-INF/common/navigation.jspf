@@ -1,0 +1,65 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title></title>
+<link href="webjars/bootstrap/3.3.6/css/bootstrap.min.css"
+	rel="stylesheet">
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+
+		<a href="/" class="navbar-brand">CP</a>
+
+		<ul class="nav navbar-nav">
+
+			<li class="nav-item dropdown ${acao eq 'budget' ? 'active' : ''}"><a
+				class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+				role="button" aria-haspopup="true" aria-expanded="false"
+				onmouseover="cadastroMenu()" id="cadMenu">Cadastro</a>
+				<div class="dropdown-menu">
+					<a class="dropdown-item" href="/controle-pessoal/budget.list">Orçamento</a>
+					<br> <a class="dropdown-item"
+						href="/controle-pessoal/budget.list">Another action</a>
+				</div>
+			</li>
+
+			<li class="nav-item ${acao eq 'budgetShortcut' ? 'active' : ''}"><a
+				class="nav-link" href="/controle-pessoal/budgetShortcut.list">Atalho</a></li>
+
+			<li class="nav-item ${acao eq 'movement' ? 'active' : ''}"><a
+				class="nav-link" href="/controle-pessoal/movement.list">Movimento</a></li>
+			<li class="nav-item ${acao eq 'budgetMovement' ? 'active' : ''}"><a
+				class="nav-link" href="/controle-pessoal/budgetMovement.list">Orçado
+					x Realizado</a></li>
+
+			<li class="nav-item dropdown ${acao eq 'budget' ? 'active' : ''}"><a
+				class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
+				role="button" aria-haspopup="true" aria-expanded="false">Ações Bovespa</a>
+				<div class="dropdown-menu">
+					<a class="dropdown-item"
+						href="/controle-pessoal/stocksOperation.list">Registrar Operação</a> <br>
+					<a class="dropdown-item" href="/controle-pessoal/stocksGain.list">Registrar Div JCP</a>
+					<br>
+				  	<div class="dropdown-divider"></div>
+				  	<br>
+					<a class="dropdown-item" href="/controle-pessoal/stocksOperation.reportList">Relatório Operações</a>
+					<br>
+					<a class="dropdown-item" href="/controle-pessoal/stocksReportGain.list">Relatório Ganhos</a>
+				</div></li>
+
+		</ul>
+
+		<ul class="nav navbar-nav navbar-left">
+			<li><a href="/controle-pessoal/logout.do">Logout</a></li>
+		</ul>
+
+	</nav>
+
+	<script>
+		function cadastroMenu() {
+			document.getElementById("cadMenu").click();
+		}
+	</script>
