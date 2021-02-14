@@ -114,7 +114,7 @@ public class SQLUtil {
 
 			sqlContentAdd(fields[i].getName());
 		}
-		sqlContentAdd(") ");
+		sqlContentAdd(") VALUES");
 
 		// Step 2 - For each item in json array, add field by model class
 		JsonArray dataset = gson.toJsonTree(obj).getAsJsonArray();
@@ -129,7 +129,7 @@ public class SQLUtil {
 				sqlContentAdd(",");
 			}
 
-			sqlContentAdd("VALUES(");
+			sqlContentAdd("(");
 
 			for (int i = 0; i < fields.length; i++) {
 
@@ -221,6 +221,16 @@ public class SQLUtil {
 		} else {
 			sqlContentAdd(whereClause);
 		}
+
+		return sql;
+	}
+
+	public static String deleteCommand(Class clazz) {
+
+		sqlContentClear();
+
+		sqlContentAdd("DELETE FROM ");
+		sqlContentAdd(getTableName(clazz));
 
 		return sql;
 	}

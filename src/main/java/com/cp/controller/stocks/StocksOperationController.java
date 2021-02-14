@@ -18,10 +18,13 @@ import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
+import com.cp.model.Stocks;
 import com.cp.model.StocksOperation;
 import com.cp.model.view.StocksReportActualPosition;
 import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
+import com.cp.rest.WebService;
+import com.cp.rest.WebService.Dados;
 
 public class StocksOperationController {
 
@@ -119,19 +122,19 @@ public class StocksOperationController {
 		Double lastMedPrice = 0.00;
 		int acumQuantity = 0;
 		Double acumMedPrice = 0.00;
+		Stocks[] stocksPrices;
 		QueryParameter qp = new QueryParameter();
-		
-//		ConsumoApplication.execute();
-		
 
 		List<StocksReportOperation> listSRPO = new ArrayList<StocksReportOperation>();
 		List<StocksReportActualPosition> listActualPosition = new ArrayList<StocksReportActualPosition>();
 
 		String filterStockItem = request.getParameter("filterStockItem");
-		String showOnlyOpened = request.getParameter("showOnlyOpenedItem");
+		boolean filterShowOnlyOpened = Boolean.parseBoolean(request.getParameter("filterShowOnlyOpened"));
+		boolean filterStockPrice = Boolean.parseBoolean(request.getParameter("filterStockPrice"));
 
 		if (filterStockItem != null) {
 			request.setAttribute("filterStockItem", filterStockItem);
+			request.setAttribute("filterShowOnlyOpened", filterShowOnlyOpened);
 		}
 
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
@@ -140,6 +143,14 @@ public class StocksOperationController {
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
 
 		Set<String> stocksList = getListOfStocks(stocksOperationList);
+
+		if (filterStockPrice) {
+			stocksPrices = updateStockPrice(stocksList);
+		} else {
+			stocksPrices = dataManager.selectList(Stocks[].class);
+		}
+
+		request.setAttribute("updatedAtInfo", formatUpdatedAtInfo(stocksPrices));
 
 		for (String stock : stocksList) {
 
@@ -233,11 +244,19 @@ public class StocksOperationController {
 				addResultLine(sRPO, stock, acumQuantity, lastMedPrice);
 			}
 
-			if (sRPO.getStocksList().get(sRPO.getStocksList().size() - 1).getQuantity() == 0) {
-//				continue;
+			if (filterShowOnlyOpened && sRPO.getStocksList().get(sRPO.getStocksList().size() - 1).getQuantity() == 0) {
+				continue;
 			}
 
-			addActualPosition(listActualPosition, sRPO, acumQuantity, lastMedPrice);
+			Double actualPrice = 0.0;
+			for (Stocks item : stocksPrices) {
+				if (item.getCodStock().equals(stock)) {
+					actualPrice = item.getActualPrice();
+					break;
+				}
+			}
+
+			addActualPosition(listActualPosition, sRPO, acumQuantity, lastMedPrice, actualPrice);
 
 			listSRPO.add(sRPO);
 		}
@@ -249,15 +268,16 @@ public class StocksOperationController {
 	}
 
 	private static void addActualPosition(List<StocksReportActualPosition> listActualPosition,
-			StocksReportOperation sRPO, int acumQuantity, Double acumMedPrice) {
+			StocksReportOperation sRPO, int acumQuantity, Double acumMedPrice, Double actualPrice) {
 
 		StocksReportActualPosition actualPosition = new StocksReportActualPosition();
 		actualPosition.setCodStock(sRPO.getCodStock());
 		actualPosition.setActualQuantity(acumQuantity);
 		actualPosition.setMedPrice(acumMedPrice);
-		
+		actualPosition.setActualPrice(actualPrice);
+
 		for (StocksReportOperation.StocksOper itemStock : sRPO.getStocksList()) {
-			
+
 			if (itemStock.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
 				actualPosition.addTotalBuy(itemStock.getTotalOperCost());
 			} else if (itemStock.getTypeOperation().equals(generalInfo.STOCK_SELL)) {
@@ -270,6 +290,69 @@ public class StocksOperationController {
 		actualPosition.calculateResult();
 
 		listActualPosition.add(actualPosition);
+	}
+
+	private static Stocks[] updateStockPrice(Set<String> stocksList) {
+
+		Double actualPrice = 0.0;
+		List<Stocks> stockPriceList = new ArrayList<Stocks>();
+
+		dataManager.deleteAll(Stocks.class);
+		
+		for (String codStock : stocksList) {
+
+			Dados stockWSData = WebService.getStockData(codStock);
+			actualPrice = 0.0;
+			try {
+				actualPrice = Double.parseDouble(stockWSData.getResults().getStock().getPrice());
+			} catch (Exception e) {
+			}
+			if (actualPrice == 0) {
+				continue;
+			}
+			
+			
+			
+			Stocks newStock = new Stocks();
+
+			newStock.setCodStock(codStock);
+			newStock.setName(stockWSData.getResults().getStock().getName());
+			newStock.setCompanyName(stockWSData.getResults().getStock().getCompany_name());
+			newStock.setActualPrice(actualPrice);
+
+			newStock.setUpdateAt(stockWSData.getResults().getStock().getUpdated_at());
+
+			stockPriceList.add(newStock);
+
+			List<Stocks> inserStockList = new ArrayList<Stocks>();
+			inserStockList.add(newStock);
+			dataManager.insert(Stocks.class, inserStockList);
+		}
+
+		Stocks[] stocksArray = new Stocks[stockPriceList.size()];
+
+		return stockPriceList.toArray(stocksArray);
+	}
+
+	private static String formatUpdatedAtInfo(Stocks[] stocksPrices) {
+
+		String result = "";
+		if (stocksPrices != null && stocksPrices.length > 0) {
+			try {
+				for (Stocks itemStock : stocksPrices) {
+					if (itemStock.getUpdateAt() != null && !"".equals(itemStock.getUpdateAt().trim())) {
+						String[] split = itemStock.getUpdateAt().split(" ");
+						String[] date = split[0].split("-");
+						result = date[2] + " de " + GeneralFunctions.convertMonthToText(date[1]) + " de " + date[0]
+								+ " " + split[1];
+						break;
+					}
+				}
+			} catch (Exception e) {
+			}
+		}
+		return result;
+
 	}
 
 	private static Map<String, StocksReportMonthSale> makeMonthSaleView(StocksOperation[] stocksOperationList) {

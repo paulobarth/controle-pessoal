@@ -39,19 +39,23 @@ tr.Info {
 						</div>
 
 						<div class="col-xs-3">
-							<input type="checkbox" class="form-check-input"
-								name="showOnlyOpenedItem" id="showOnlyOpened"> <label
-								class="form-check-label" for="showOnlyOpened">Apenas em
-								aberto</label>
+							<label for="ex3">Apenas em aberto</label> <select
+								class="form-control" name="filterShowOnlyOpened"
+								id="filterShowOnlyOpened">
+								<option value="false"
+									${filterShowOnlyOpened == 'false' ? 'selected="selected"' : ''}>Não
+								</option>
+								<option value="true"
+									${filterShowOnlyOpened == 'true' ? 'selected="selected"' : ''}>Sim
+								</option>
+							</select>
 						</div>
-
 						<div class="col-xs-3">
-							<label for="" class="form-control-label">Ação</label> <select
-								class="form-control selectpicker" id="select-country"
-								placeholder="" data-live-search="true">
-								<option data-tokens="china">China</option>
-								<option data-tokens="malayasia">Malayasia</option>
-								<option data-tokens="singapore">Singapore</option>
+							<label for="ex3">Atualizar Preços</label> <select
+								class="form-control" name="filterStockPrice"
+								id="filterStockPrice">
+								<option value="false" selected="selected">Não</option>
+								<option value="true">Sim</option>
 							</select>
 						</div>
 
@@ -159,6 +163,7 @@ tr.Info {
 
 	<div id="div2" hidden="true">
 
+		Atualizado em: ${updatedAtInfo}
 		<table class="table table-fit">
 			<thead class="table-light">
 				<th scope="col">Ação</th>
@@ -166,8 +171,13 @@ tr.Info {
 				<th scope="col"><div class="pull-right">Preço Médio</div></th>
 				<th scope="col"><div class="pull-right">Total Compra</div></th>
 				<th scope="col"><div class="pull-right">Total Venda</div></th>
-				<th scope="col"><div class="pull-right">LP Acum R$</div></th>
-				<th scope="col"><div class="pull-right">LP Acum %</div></th>
+				<th scope="col"><div class="pull-right">LP Acum</div></th>
+				<th scope="col"><div class="pull-right">%</div></th>
+				<th></th>
+				<th scope="col"><div class="pull-right">Cotação Atual</div></th>
+				<th scope="col"><div class="pull-right">Dif</div></th>
+				<th scope="col"><div class="pull-right">LP Atual</div></th>
+				<th scope="col"><div class="pull-right">%</div></th>
 			</thead>
 
 			<c:forEach items="${listActualPosition}" var="actualPosition">
@@ -180,7 +190,7 @@ tr.Info {
 					<td>
 						<div class="pull-right">
 							<fmt:formatNumber value="${actualPosition.medPrice}"
-								type="number" minFractionDigits="2" />
+								type="number" minFractionDigits="2" maxFractionDigits="2" />
 						</div>
 					</td>
 					<td>
@@ -205,9 +215,38 @@ tr.Info {
 					<td
 						class="${actualPosition.result < 0 ? 'table-danger' : actualPosition.result > 0 ? 'table-primary' : ''}">
 						<div class="pull-right">
-							<fmt:formatNumber value="${actualPosition.result}" type="number"
-								minFractionDigits="2" />
-							%
+							<small class="text-muted"> <fmt:formatNumber
+									value="${actualPosition.result}" type="percent"
+									minFractionDigits="2" maxFractionDigits="2" />
+							</small>
+						</div>
+					</td>
+					<td></td>
+					<td
+						class="${actualPosition.actualQuantity > 0 ?
+						actualPosition.actualPrice < actualPosition.medPrice ? 'table-danger' : 'table-success' : ''}">
+						<div class="pull-right">
+							<fmt:formatNumber value="${actualPosition.actualPrice}"
+								type="number" minFractionDigits="2" />
+						</div>
+					</td>
+					<td>
+						<div class="pull-right">
+							<fmt:formatNumber value="${actualPosition.actualPriceDif}"
+								type="number" minFractionDigits="2" maxFractionDigits="2" />
+						</div>
+					</td>
+					<td>
+						<div class="pull-right">
+							<fmt:formatNumber value="${actualPosition.totalActualResult}"
+								type="number" minFractionDigits="2" />
+						</div>
+					</td>
+					<td>
+						<div class="pull-right">
+							<small class="text-muted"><fmt:formatNumber
+									value="${actualPosition.actualResult}" type="percent"
+									minFractionDigits="2" maxFractionDigits="2" /> </small>
 						</div>
 					</td>
 				</tr>

@@ -20,7 +20,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 public class dataManager {
-	
+
 	private static Connection conn = null;
 
 	private static Gson gson = new Gson();
@@ -33,11 +33,11 @@ public class dataManager {
 		String whereClause = SQLUtil.getSQLQuery(qp);
 		return executeSelectList(arrayClazz, whereClause);
 	}
-	
+
 	public static <T> T selectList(final Class arrayClazz, String whereClause) {
 		return executeSelectList(arrayClazz, whereClause);
 	}
-	
+
 	private static <T> T executeSelectList(Class arrayClazz, String whereClause) {
 
 		Class modelClazz = arrayClazz.getComponentType();
@@ -59,7 +59,7 @@ public class dataManager {
 	public static <T> T selectId(final Class clazz, int id) {
 		return selectId(clazz, id, "");
 	}
-	
+
 	private static <T> T selectId(final Class clazz, int id, String whereClause) {
 
 		String json = executeSelect(clazz, SQLUtil.selectIdCommand(clazz, id));
@@ -68,8 +68,8 @@ public class dataManager {
 
 		return (T) gson.fromJson(json, clazz);
 	}
-	
-	public static boolean isDataUnique (final Class arrayClazz, QueryParameter qp) {
+
+	public static boolean isDataUnique(final Class arrayClazz, QueryParameter qp) {
 		String whereClause = SQLUtil.getSQLQuery(qp);
 		Class modelClazz = arrayClazz.getComponentType();
 		String json = executeSelect(modelClazz, SQLUtil.selectAllCommand(modelClazz, whereClause));
@@ -104,7 +104,7 @@ public class dataManager {
 							fieldName = fields[i].getName();
 
 							String fieldContent = rs.getString(fieldName);
-							
+
 							if (qtdeAdd > 0) {
 								json += ",";
 							}
@@ -173,29 +173,29 @@ public class dataManager {
 	}
 
 	public static void updateId(final Class clazz, Object obj) {
-		
+
 		if (connect()) {
 
 			if (obj.getClass().getTypeName().contains("ArrayList")) {
-	
+
 				JsonArray dataset = gson.toJsonTree(obj).getAsJsonArray();
 				Iterator<JsonElement> iterator = dataset.iterator();
-	
+
 				while (iterator.hasNext()) {
-	
+
 					JsonObject jObj = iterator.next().getAsJsonObject();
-	
+
 					String sql = SQLUtil.updateIdCommand(jObj, clazz);
-					
+
 					executeUpdate(sql);
 				}
 			} else {
-	
+
 				JsonObject jObj = gson.toJsonTree(obj).getAsJsonObject();
-	
+
 				String sql = SQLUtil.updateIdCommand(jObj, clazz);
-				
-				executeUpdate(sql);			
+
+				executeUpdate(sql);
 			}
 
 			disconnect();
@@ -203,15 +203,15 @@ public class dataManager {
 	}
 
 	private static void executeUpdate(String sql) {
-		
+
 		try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-			
+
 			pstmt.executeUpdate();
 			GeneralFunctions.showLog("Atualizando: " + sql);
-			
+
 		} catch (SQLException e) {
 			GeneralFunctions.showLog(e.getMessage());
-		}	
+		}
 	}
 
 	public static void delete(final Class clazz, Object obj) {
@@ -241,6 +241,24 @@ public class dataManager {
 		}
 	}
 
+	public static void deleteAll(final Class clazz) {
+
+		if (connect()) {
+
+			String sql = SQLUtil.deleteCommand(clazz);
+
+			try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+				pstmt.executeUpdate();
+				GeneralFunctions.showLog("Deletado: " + sql);
+
+			} catch (SQLException e) {
+				GeneralFunctions.showLog(e.getMessage());
+			}
+			disconnect();
+		}
+	}
+
 	public static void deleteId(final Class clazz, int id) {
 
 		if (connect()) {
@@ -260,94 +278,65 @@ public class dataManager {
 			disconnect();
 		}
 	}
-	
+
 	public static void prepareDatabase() {
 		createNewTables();
 	}
 
-    private static void createNewTables() {
+	private static void createNewTables() {
 
-        String sql;
+		String sql;
 
-        sql = "CREATE TABLE IF NOT EXISTS stocksOperation (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	codStock text NOT NULL,\n"
-                + "	typeOperation text NOT NULL,\n"
-                + "	datOperation text,\n"
-                + "	quantity integer,\n"
-                + "	valStock real,\n"
-                + "	valCost real\n"
-                + ");";
-        
-        executeSqlStatement(sql);
+		sql = "CREATE TABLE IF NOT EXISTS stocksOperation (\n" + "	id integer PRIMARY KEY,\n"
+				+ "	codStock text NOT NULL,\n" + "	typeOperation text NOT NULL,\n" + "	datOperation text,\n"
+				+ "	quantity integer,\n" + "	valStock real,\n" + "	valCost real\n" + ");";
 
-        sql = "CREATE TABLE IF NOT EXISTS budget (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	codBudget text NOT NULL,\n"
-                + "	datIni text,\n"
-                + "	datEnd text,\n"
-                + "	version text\n"
-                + ");";
-        
-        executeSqlStatement(sql);
+		executeSqlStatement(sql);
 
-        sql = "CREATE TABLE IF NOT EXISTS budgetShortcut (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	shortcut text NOT NULL,\n"
-                + "	splitter text,\n"
-                + "	codItem text,\n"	//Campo da BudgetItem
-                + "	grpItem text\n"		//Campo da BudgetItem
-                + ");";
-        
-        executeSqlStatement(sql);
-		
+		sql = "CREATE TABLE IF NOT EXISTS budget (\n" + "	id integer PRIMARY KEY,\n" + "	codBudget text NOT NULL,\n"
+				+ "	datIni text,\n" + "	datEnd text,\n" + "	version text\n" + ");";
 
-        sql = "CREATE TABLE IF NOT EXISTS budgetItem (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	idBudget text NOT NULL,\n"
-                + "	codItem text NOT NULL,\n"
-                + " valItem real,\n"
-                + "	grpItem text,\n"
-                + "	type text,\n"
-                + "	dayVencto integer\n"
-                + ");";
-        
-        executeSqlStatement(sql);
+		executeSqlStatement(sql);
 
-        sql = "CREATE TABLE IF NOT EXISTS movement (\n"
-                + "	id integer PRIMARY KEY,\n"
-                + "	description text NOT NULL,\n"
-                + "	datMovement text NOT NULL,\n"
-                + "	datFinancial text,\n"
-                + " origin text,\n"
-                + "	valMovement real,\n"
-                + "	typeMovement text,\n"
-                + "	documentNumber text,\n"
-                + "	splitted integer,\n"
-                + "	valTotal real,\n"
-                + "	codItem text,\n"	//Campo da BudgetItem
-                + "	grpItem text\n"		//Campo da BudgetItem
-                + ");";        
+		sql = "CREATE TABLE IF NOT EXISTS budgetShortcut (\n" + "	id integer PRIMARY KEY,\n"
+				+ "	shortcut text NOT NULL,\n" + "	splitter text,\n" + "	codItem text,\n" // Campo da BudgetItem
+				+ "	grpItem text\n" // Campo da BudgetItem
+				+ ");";
 
-        executeSqlStatement(sql);
+		executeSqlStatement(sql);
+
+		sql = "CREATE TABLE IF NOT EXISTS budgetItem (\n" + "	id integer PRIMARY KEY,\n"
+				+ "	idBudget text NOT NULL,\n" + "	codItem text NOT NULL,\n" + " valItem real,\n" + "	grpItem text,\n"
+				+ "	type text,\n" + "	dayVencto integer\n" + ");";
+
+		executeSqlStatement(sql);
+
+		sql = "CREATE TABLE IF NOT EXISTS movement (\n" + "	id integer PRIMARY KEY,\n"
+				+ "	description text NOT NULL,\n" + "	datMovement text NOT NULL,\n" + "	datFinancial text,\n"
+				+ " origin text,\n" + "	valMovement real,\n" + "	typeMovement text,\n" + "	documentNumber text,\n"
+				+ "	splitted integer,\n" + "	valTotal real,\n" + "	codItem text,\n" // Campo da BudgetItem
+				+ "	grpItem text\n" // Campo da BudgetItem
+				+ ");";
+
+		executeSqlStatement(sql);
 	}
 
-    public static void executeSqlStatement(String sql) {
+	public static void executeSqlStatement(String sql) {
 
-        if (connect()) {
-        	
-	        try (Statement stmt = conn.createStatement()) {
-	        	
-	            Boolean result = stmt.execute(sql);
-	            GeneralFunctions.showLog("Statement excetuded: " + sql);	            
-	            GeneralFunctions.showLog("Statement excetuded: " + result);
-	        } catch (SQLException e) {
-	            System.out.println(e.getMessage());
-	        }
-	        
-	        disconnect();
-        }
-    }
+		if (connect()) {
+
+			try (Statement stmt = conn.createStatement()) {
+
+				Boolean result = stmt.execute(sql);
+				GeneralFunctions.showLog("Statement excetuded: " + sql);
+				GeneralFunctions.showLog("Statement excetuded: " + result);
+			} catch (SQLException e) {
+				System.out.println(e.getMessage());
+			}
+
+			disconnect();
+		}
+	}
 
 	private static boolean connect() {
 
@@ -360,7 +349,7 @@ public class dataManager {
 
 				DatabaseMetaData meta = conn.getMetaData();
 				// GeneralFunctions.showLog("The driver name is " + meta.getDriverName());
-            	GeneralFunctions.showLog("Database connected.");
+				GeneralFunctions.showLog("Database connected.");
 				return true;
 			}
 		} catch (SQLException e) {
@@ -377,7 +366,7 @@ public class dataManager {
 		try {
 			if (conn != null) {
 				conn.close();
-//                GeneralFunctions.showLog("Database disconnected.");
+                GeneralFunctions.showLog("Database disconnected.");
 			}
 		} catch (SQLException ex) {
 			GeneralFunctions.showLog(ex.getMessage());

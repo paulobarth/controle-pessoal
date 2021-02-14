@@ -13,6 +13,10 @@ public class StocksReportActualPosition {
 	private Double totalResultSell = 0.0;
 	private Double result;
 	private boolean dangerResult;
+	private Double actualPrice;
+	private Double actualPriceDif;
+	private Double totalActualResult;
+	private Double actualResult;
 
 	public String getCodStock() {
 		return codStock;
@@ -85,12 +89,36 @@ public class StocksReportActualPosition {
 	public void calculateResult() {
 		this.result = 0.0;
 		if (getTotalSell() != 0) {
-			this.result = (getTotalResultSell() / getTotalSellMedPrice());
-			this.result = this.result * 100;
+			this.result = getTotalResultSell() / getTotalSellMedPrice();
 		}
 		if (this.result < 0) {
 			setDangerResult(true);
 		}
+		
+		if (getActualQuantity() > 0 && getActualPrice() > 0) {
+			this.actualPriceDif = getActualPrice() - getMedPrice();
+			this.totalActualResult = this.actualPriceDif * getActualQuantity();
+			this.actualResult = 1 - (getMedPrice() / getActualPrice());
+		}
 	}
 
+	public Double getActualPrice() {
+		return actualPrice;
+	}
+
+	public Double getActualPriceDif() {
+		return actualPriceDif;
+	}
+
+	public void setActualPrice(Double actualPrice) {
+		this.actualPrice = actualPrice;
+	}
+
+	public Double getTotalActualResult() {
+		return totalActualResult;
+	}
+
+	public Double getActualResult() {
+		return actualResult;
+	}
 }
