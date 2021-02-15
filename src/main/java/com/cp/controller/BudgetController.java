@@ -8,10 +8,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataManager;
-import com.cp.fwk.util.model.QueryParameter;
-import com.cp.fwk.util.query.QueryTypeCondition;
-import com.cp.fwk.util.query.QueryTypeFilter;
+import com.cp.fwk.data.DataManager;
 import com.cp.model.Budget;
 
 public class BudgetController {
@@ -54,7 +51,7 @@ public class BudgetController {
 	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 
-		Budget[] budgetList = dataManager.selectList(Budget[].class);
+		Budget[] budgetList = DataManager.selectList(Budget[].class);
 
 		request.setAttribute("budgetList", budgetList);
 	}
@@ -72,16 +69,16 @@ public class BudgetController {
 		if (idParam.isEmpty()) {
 			List<Budget> lBudget = new ArrayList<Budget>();
 			lBudget.add(budget);
-			dataManager.insert(Budget.class, lBudget);
+			DataManager.insert(Budget.class, lBudget);
 		} else {
 			budget.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(Budget.class, budget);
+			DataManager.updateId(Budget.class, budget);
 		}
 	}
 
 	private static void updateBudget(HttpServletRequest request, HttpServletResponse response) {
 
-		Budget budget = dataManager.selectId(Budget.class, Integer.parseInt(request.getParameter("id")));
+		Budget budget = DataManager.selectId(Budget.class, Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("budget", budget);
 
@@ -93,6 +90,6 @@ public class BudgetController {
 	}
 
 	private static void deleteBudget(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(Budget.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(Budget.class, Integer.parseInt(request.getParameter("id")));
 	}
 }

@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cp.constants.generalInfo;
-import com.cp.dao.dataManager;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
@@ -69,7 +69,7 @@ public class StocksOperationController {
 		QueryParameter qp = new QueryParameter();
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		StocksOperation[] stocksOperationList = dataManager.selectList(StocksOperation[].class, qp);
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
 
 		request.setAttribute("stocksOperationList", stocksOperationList);
 	}
@@ -90,16 +90,16 @@ public class StocksOperationController {
 		if (idParam.isEmpty()) {
 			List<StocksOperation> lStocksOperation = new ArrayList<StocksOperation>();
 			lStocksOperation.add(StocksOperation);
-			dataManager.insert(StocksOperation.class, lStocksOperation);
+			DataManager.insert(StocksOperation.class, lStocksOperation);
 		} else {
 			StocksOperation.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(StocksOperation.class, StocksOperation);
+			DataManager.updateId(StocksOperation.class, StocksOperation);
 		}
 	}
 
 	private static void updateStocksOperation(HttpServletRequest request, HttpServletResponse response) {
 
-		StocksOperation stocksOperation = dataManager.selectId(StocksOperation.class,
+		StocksOperation stocksOperation = DataManager.selectId(StocksOperation.class,
 				Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("stocksOperation", stocksOperation);
@@ -112,7 +112,7 @@ public class StocksOperationController {
 	}
 
 	private static void deleteStocksOperation(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(StocksOperation.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(StocksOperation.class, Integer.parseInt(request.getParameter("id")));
 	}
 
 	private static void reportListStocksOperation(HttpServletRequest request, HttpServletResponse response) {
@@ -138,7 +138,7 @@ public class StocksOperationController {
 		}
 
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		StocksOperation[] stocksOperationList = dataManager.selectList(StocksOperation[].class, qp);
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
 
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
 
@@ -147,7 +147,7 @@ public class StocksOperationController {
 		if (filterStockPrice) {
 			stocksPrices = updateStockPrice(stocksList);
 		} else {
-			stocksPrices = dataManager.selectList(Stocks[].class);
+			stocksPrices = DataManager.selectList(Stocks[].class);
 		}
 
 		request.setAttribute("updatedAtInfo", formatUpdatedAtInfo(stocksPrices));
@@ -171,7 +171,7 @@ public class StocksOperationController {
 			qp.addSingleParameter("codStock", QueryTypeFilter.EQUAL, stock, QueryTypeCondition.AND);
 			qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 
-			stocksOperationList = dataManager.selectList(StocksOperation[].class, qp);
+			stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
 
 			for (StocksOperation teste : stocksOperationList) {
 
@@ -297,7 +297,7 @@ public class StocksOperationController {
 		Double actualPrice = 0.0;
 		List<Stocks> stockPriceList = new ArrayList<Stocks>();
 
-		dataManager.deleteAll(Stocks.class);
+		DataManager.deleteAll(Stocks.class);
 		
 		for (String codStock : stocksList) {
 
@@ -326,7 +326,7 @@ public class StocksOperationController {
 
 			List<Stocks> inserStockList = new ArrayList<Stocks>();
 			inserStockList.add(newStock);
-			dataManager.insert(Stocks.class, inserStockList);
+			DataManager.insert(Stocks.class, inserStockList);
 		}
 
 		Stocks[] stocksArray = new Stocks[stockPriceList.size()];

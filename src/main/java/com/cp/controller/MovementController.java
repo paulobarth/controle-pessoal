@@ -11,8 +11,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataBO;
-import com.cp.dao.dataManager;
+import com.cp.dao.GeneralDataBO;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
@@ -79,7 +79,7 @@ public class MovementController {
 		budgetItemList = null;
 		setBudgetItemListAttribute(request);
 
-		Movement[] movementList = dataManager.selectList(Movement[].class);
+		Movement[] movementList = DataManager.selectList(Movement[].class);
 
 		request.setAttribute("movementList", movementList);
 	}
@@ -88,7 +88,7 @@ public class MovementController {
 
 		if (budgetItemList == null) {
 
-			budgetItemList = dataBO.getCurrentBudgetItemList();
+			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
 		}
 		request.setAttribute("budgetItemList", budgetItemList);
 
@@ -127,10 +127,10 @@ public class MovementController {
 		if (idParam.isEmpty()) {
 			List<Movement> lMovement = new ArrayList<Movement>();
 			lMovement.add(movement);
-			dataManager.insert(Movement.class, lMovement);
+			DataManager.insert(Movement.class, lMovement);
 		} else {
 			movement.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(Movement.class, movement);
+			DataManager.updateId(Movement.class, movement);
 		}
 	}
 
@@ -138,7 +138,7 @@ public class MovementController {
 
 		setBudgetItemListAttribute(request);
 
-		Movement movement = dataManager.selectId(Movement.class, Integer.parseInt(request.getParameter("id")));
+		Movement movement = DataManager.selectId(Movement.class, Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("movement", movement);
 
@@ -149,7 +149,7 @@ public class MovementController {
 	}
 
 	private static void deleteMovement(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(Movement.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(Movement.class, Integer.parseInt(request.getParameter("id")));
 	}
 
 	public static void filterMovement(HttpServletRequest request, HttpServletResponse response)
@@ -164,7 +164,7 @@ public class MovementController {
 
 		setBudgetItemListAttribute(request);
 
-		Movement[] movementList = dataManager.selectList(Movement[].class, getQueryParameters(request));
+		Movement[] movementList = DataManager.selectList(Movement[].class, getQueryParameters(request));
 
 		request.setAttribute("movementList", movementList);
 		request.setAttribute("filterCollapsed", "true");
@@ -244,12 +244,12 @@ public class MovementController {
 
 		switch (option) {
 		case "shortgen":
-			dataBO.applyShortcutRulesToMovement((Movement[]) dataManager.selectList(Movement[].class));
+			GeneralDataBO.applyShortcutRulesToMovement((Movement[]) DataManager.selectList(Movement[].class));
 			break;
 
 		case "shortrest":
 			if (movementFilteredList != null) {
-				dataBO.applyShortcutRulesToMovement(movementFilteredList);
+				GeneralDataBO.applyShortcutRulesToMovement(movementFilteredList);
 			}
 			break;
 
@@ -265,7 +265,7 @@ public class MovementController {
 			}
 			
 			if (sc != null && sc.length == 2) {
-				dataBO.applyShortcutRulesToMovement(movementFilteredList, sc[0], sc[1]);
+				GeneralDataBO.applyShortcutRulesToMovement(movementFilteredList, sc[0], sc[1]);
 			}
 			break;
 

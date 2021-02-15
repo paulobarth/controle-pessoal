@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.cp.dao.dataManager;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
-import com.cp.load.LoadCSV;
-import com.cp.model.BudgetItem;
 import com.cp.model.Movement;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -79,7 +77,7 @@ public class ImportDataCSV {
 
 			if (isMovementUnique(movement)) {
 				lMovement.add(movement);
-				dataManager.insert(Movement.class, lMovement);
+				DataManager.insert(Movement.class, lMovement);
 			}
 		}
 
@@ -158,7 +156,7 @@ public class ImportDataCSV {
 
 			if (isMovementUnique(movement)) {
 				lMovement.add(movement);
-				dataManager.insert(Movement.class, lMovement);
+				DataManager.insert(Movement.class, lMovement);
 			}
 		}
 		return "OK";
@@ -174,6 +172,6 @@ public class ImportDataCSV {
 		qp.addSingleParameter("valMovement", QueryTypeFilter.EQUAL, String.valueOf(movement.getValMovement()),
 				QueryTypeCondition.AND);
 
-		return dataManager.isDataUnique(Movement[].class, qp);
+		return DataManager.isDataUnique(Movement[].class, qp);
 	}
 }

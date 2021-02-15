@@ -8,10 +8,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataBO;
-import com.cp.dao.dataManager;
-import com.cp.fwk.util.GeneralFunctions;
-import com.cp.model.Budget;
+import com.cp.dao.GeneralDataBO;
+import com.cp.fwk.data.DataManager;
 import com.cp.model.BudgetItem;
 import com.cp.model.BudgetShortcut;
 
@@ -54,7 +52,7 @@ public class BudgetShortcutController {
 		budgetItemList = null;
 		setBudgetItemListAttribute(request);
 
-		BudgetShortcut[] budgetShortcutList = dataManager.selectList(BudgetShortcut[].class);
+		BudgetShortcut[] budgetShortcutList = DataManager.selectList(BudgetShortcut[].class);
 		
 		request.setAttribute("budgetShortcutList", budgetShortcutList);
 	}
@@ -63,7 +61,7 @@ public class BudgetShortcutController {
 		
 		if (budgetItemList == null) {
 			
-			budgetItemList = dataBO.getCurrentBudgetItemList();
+			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
 		}
 		request.setAttribute("budgetItemList", budgetItemList);
 	}
@@ -91,10 +89,10 @@ public class BudgetShortcutController {
 		if (idParam.isEmpty()) {
 			List<BudgetShortcut> lBudgetShortcut = new ArrayList<BudgetShortcut>();
 			lBudgetShortcut.add(budgetShortcut);
-			dataManager.insert(BudgetShortcut.class, lBudgetShortcut);
+			DataManager.insert(BudgetShortcut.class, lBudgetShortcut);
 		} else {
 			budgetShortcut.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(BudgetShortcut.class, budgetShortcut);
+			DataManager.updateId(BudgetShortcut.class, budgetShortcut);
 		}
 	}
 
@@ -102,7 +100,7 @@ public class BudgetShortcutController {
 		
 		setBudgetItemListAttribute(request);
 
-		BudgetShortcut budgetShortcut = dataManager.selectId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
+		BudgetShortcut budgetShortcut = DataManager.selectId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("budgetShortcut", budgetShortcut);
 
@@ -114,6 +112,6 @@ public class BudgetShortcutController {
 	}
 
 	private static void deleteBudgetShortcut(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
 	}
 }

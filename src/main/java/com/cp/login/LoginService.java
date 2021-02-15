@@ -1,6 +1,6 @@
 package com.cp.login;
 
-import com.cp.dao.dataManager;
+import com.cp.fwk.data.DataManager;
 
 public class LoginService {
 
@@ -14,7 +14,7 @@ public class LoginService {
 	}
 
 	public void prepareDatabase() {
-		dataManager.prepareDatabase();
+		DataManager.prepareDatabase();
 	}
 	
 }

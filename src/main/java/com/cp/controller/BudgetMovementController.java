@@ -2,9 +2,7 @@ package com.cp.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLPermission;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,17 +11,15 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataBO;
-import com.cp.dao.dataManager;
+import com.cp.dao.GeneralDataBO;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
-import com.cp.model.Budget;
 import com.cp.model.BudgetItem;
 import com.cp.model.Movement;
 import com.cp.model.view.BudgetMovement;
-import com.cp.model.view.BudgetMovementDetail;
 
 public class BudgetMovementController {
 
@@ -88,7 +84,7 @@ public class BudgetMovementController {
 			bmUnrecDespesa.setValMovement("Despesa", month, 0.00);
 		}
 		
-		BudgetItem[] budgetItemList = dataBO.getCurrentBudgetItemList();
+		BudgetItem[] budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
 		
 		Map<String, BudgetMovement> budgetMovList = new HashMap<String, BudgetMovement>();
 		
@@ -116,7 +112,7 @@ public class BudgetMovementController {
 				QueryTypeCondition.AND);
 		qpMovement.addOrderByOption("description", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		
-		Movement[] movementList = dataManager.selectList(Movement[].class, qpMovement);
+		Movement[] movementList = DataManager.selectList(Movement[].class, qpMovement);
 
 		for (int pos = 0; pos < movementList.length; pos++) {
 			

@@ -10,7 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataManager;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
@@ -60,7 +60,7 @@ public class StocksGainController {
 		QueryParameter qp = new QueryParameter();
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datGain", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		StocksGain[] stocksOperationList = dataManager.selectList(StocksGain[].class, qp);
+		StocksGain[] stocksOperationList = DataManager.selectList(StocksGain[].class, qp);
 
 		request.setAttribute("stocksOperationList", stocksOperationList);
 	}
@@ -79,16 +79,16 @@ public class StocksGainController {
 		if (idParam.isEmpty()) {
 			List<StocksGain> lStocksGain = new ArrayList<StocksGain>();
 			lStocksGain.add(StocksGain);
-			dataManager.insert(StocksGain.class, lStocksGain);
+			DataManager.insert(StocksGain.class, lStocksGain);
 		} else {
 			StocksGain.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(StocksGain.class, StocksGain);
+			DataManager.updateId(StocksGain.class, StocksGain);
 		}
 	}
 
 	private static void updateStocksGain(HttpServletRequest request, HttpServletResponse response) {
 
-		StocksGain stocksGain = dataManager.selectId(StocksGain.class,
+		StocksGain stocksGain = DataManager.selectId(StocksGain.class,
 				Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("stocksGain", stocksGain);
@@ -101,7 +101,7 @@ public class StocksGainController {
 	}
 
 	private static void deleteStocksGain(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(StocksGain.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(StocksGain.class, Integer.parseInt(request.getParameter("id")));
 	}
 
 	private static void reportListStocksGain(HttpServletRequest request, HttpServletResponse response) {
@@ -121,7 +121,7 @@ public class StocksGainController {
 			request.setAttribute("filterStockItem", filterStockItem);
 
 		}
-		StocksGain[] stocksOperationList = dataManager.selectList(StocksGain[].class, qp);
+		StocksGain[] stocksOperationList = DataManager.selectList(StocksGain[].class, qp);
 		
 		Set<String> stocksList = getListOfStocks(stocksOperationList);
 

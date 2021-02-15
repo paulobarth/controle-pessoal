@@ -8,13 +8,12 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.cp.dao.dataManager;
+import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Budget;
 import com.cp.model.BudgetItem;
-import com.cp.servlet.MainServlet;
 
 public class BudgetItemController {
 
@@ -63,8 +62,8 @@ public class BudgetItemController {
 		qp.addOrderByOption("grpItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("codItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 
-		BudgetItem[] budgetItemList = dataManager.selectList(BudgetItem[].class, qp);
-		budgetSelected = dataManager.selectId(Budget.class, budgetId);
+		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
+		budgetSelected = DataManager.selectId(Budget.class, budgetId);
 		
 		request.setAttribute("budgetItemList", budgetItemList);
 		request.setAttribute("budget", budgetSelected);
@@ -85,16 +84,16 @@ public class BudgetItemController {
 		if (idParam.isEmpty()) {
 			List<BudgetItem> lBudgetItem = new ArrayList<BudgetItem>();
 			lBudgetItem.add(budgetItem);
-			dataManager.insert(BudgetItem.class, lBudgetItem);
+			DataManager.insert(BudgetItem.class, lBudgetItem);
 		} else {
 			budgetItem.setId(Integer.parseInt(request.getParameter("id")));
-			dataManager.updateId(BudgetItem.class, budgetItem);
+			DataManager.updateId(BudgetItem.class, budgetItem);
 		}
 	}
 
 	private static void updateBudget(HttpServletRequest request, HttpServletResponse response) {
 		
-		BudgetItem budgetItem = dataManager.selectId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
+		BudgetItem budgetItem = DataManager.selectId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
 		
 		request.setAttribute("budgetItem", budgetItem);
 
@@ -106,6 +105,6 @@ public class BudgetItemController {
 	}
 
 	private static void deleteBudget(HttpServletRequest request, HttpServletResponse response) {
-		dataManager.deleteId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
 	}
 }
