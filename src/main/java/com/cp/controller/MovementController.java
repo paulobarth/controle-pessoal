@@ -24,7 +24,6 @@ public class MovementController extends BaseControllerImpl {
 
 	private BudgetItem[] budgetItemList;
 	private Movement[] movementFilteredList;
-	private Map<String, String> filterMap = new HashMap<String, String>();
 
 	@Override
 	protected void specificOptionToExecute() {
@@ -39,7 +38,7 @@ public class MovementController extends BaseControllerImpl {
 
 			if (!filterMap.isEmpty()) {
 				option = "filter";
-				applyFilterMovement(request);
+				applyFilterMovement();
 			}
 		}
 
@@ -128,113 +127,14 @@ public class MovementController extends BaseControllerImpl {
 	}
 
 	@Override
-	protected void filter() {
-		storeRequestFilterParameters(request);
-
-		applyFilterMovement(request);
-	}
-
-	/*
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "save":
-			saveMovement(request, response);
-			break;
-		case "update":
-			updateMovement(request, response);
-			break;
-		case "delete":
-			deleteMovement(request, response);
-			break;
-		case "filter":
-			filterMovement(request, response);
-			break;
-		case "shortgen":
-		case "shortrest":
-		case "shortnew":
-			shortcutMovement(request, response, option);
-			break;
-
-		default:
-			break;
-		}
-
-		if (option.equals("list")) {
-			filterMap.clear();
-		} else if ("save,delete,cancel,shortgen,shortrest,shortnew".indexOf(option) >= 0) {
-
-			if (!filterMap.isEmpty()) {
-				option = "filter";
-				applyFilterMovement(request);
-			}
-		}
-
-		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
-			request.getRequestDispatcher("/WEB-INF/views/movement.jsp").forward(request, response);
-		} else {
-			response.sendRedirect("/controle-pessoal/movement.list");
-		}
-
-	}
-*/
-
-	private void applyFilterMovement(HttpServletRequest request) {
-
+	protected void applyFilterMovement() {
 		setBudgetItemListAttribute(request);
-
-		Movement[] movementList = DataManager.selectList(Movement[].class, getQueryParameters(request));
-
+		Movement[] movementList = DataManager.selectList(Movement[].class, getQueryParameters());
 		request.setAttribute("movementList", movementList);
-		request.setAttribute("filterCollapsed", "true");
-
 		movementFilteredList = movementList;
-
-		sendMapFilterParametersToRequest(request);
 	}
 
-	private void storeRequestFilterParameters(HttpServletRequest request) {
-
-		filterMap.clear();
-		Enumeration<?> e = request.getParameterNames();
-		while (e.hasMoreElements()) {
-			String name = (String) e.nextElement();
-
-			// Get the value of the attribute
-			Object value = request.getParameter(name);
-
-//			if (value instanceof Map) {
-//				for (Map.Entry<?, ?> entry : ((Map<?, ?>) value).entrySet()) {
-//					System.out.println(entry.getKey() + "=" + entry.getValue());
-//				}
-//			} else if (value instanceof List) {
-//				for (Object element : (List) value) {
-//					System.out.println(element);
-//				}
-//			}
-			if (value instanceof String) {
-
-				if (name.startsWith("filter")) {
-//					request.setAttribute(name, value);
-					filterMap.put(name, value.toString());
-//					System.out.println(value);
-				}
-			}
-		}
-	}
-
-	private void sendMapFilterParametersToRequest(HttpServletRequest request) {
-
-		for (String key : filterMap.keySet()) {
-			request.setAttribute(key, filterMap.get(key));
-		}
-	}
-
-	private QueryParameter getQueryParameters(HttpServletRequest request) {
+	private QueryParameter getQueryParameters() {
 
 		QueryParameter qp = new QueryParameter();
 

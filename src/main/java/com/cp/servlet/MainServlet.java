@@ -20,7 +20,7 @@ import com.cp.controller.stocks.StocksOperationController;
 
 @WebServlet(urlPatterns = {	"/budget.list", 		"/budget.save", 		"/budget.update", 			"/budget.delete",
 							"/budget.item",
-							"/budgetItem.list", 	"/budgetItem.save", 	"/budgetItem.update", 		"/budgetItem.delete",
+							"/budgetItem.list", 	"/budgetItem.save", 	"/budgetItem.update", 		"/budgetItem.delete", "/budgetItem.filter",
 							"/movement.list", 		"/movement.save", 		"/movement.update",			"/movement.delete",
 							"/movement.filter",		"/movement.shortgen",	"/movement.shortrest", 		"/movement.shortnew",
 							"/movement.cancel",
@@ -42,7 +42,6 @@ public class MainServlet extends HttpServlet {
 	private BaseController budgetMovementController;
 	private BaseController importMovementController;
 	private BaseController stocksGainController;
-
 	private BaseController stocksOperationController;
 
 	@Override

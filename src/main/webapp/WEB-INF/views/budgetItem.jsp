@@ -75,6 +75,32 @@
 		</div>
 	</div>
 
+	<div class="row">
+		<div class="col">
+			<div class="collapse multi-collapse" id="collapseFilterRegister">
+				<div class="card card-body">
+
+					<form action="/controle-pessoal/budgetItem.filter" method="post">
+
+						<div class="col-xs-3">
+							<label for="ex3">Item</label> <input class="form-control"
+								name="filterItem" type="text"
+								value="${filterItem}">
+						</div>
+
+						<br>
+						<div class="form-group col">
+							<input class="btn btn-success" type="submit" value="Filtrar">
+							<input class="btn btn-warning" type="reset">
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+			
 	<table class="table table-striped">
 
 		<thead>

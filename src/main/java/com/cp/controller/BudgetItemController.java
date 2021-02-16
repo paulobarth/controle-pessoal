@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.cp.fwk.data.DataManager;
+import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Budget;
 import com.cp.model.BudgetItem;
+import com.cp.model.Movement;
 
 public class BudgetItemController extends BaseControllerImpl {
 
@@ -22,7 +22,9 @@ public class BudgetItemController extends BaseControllerImpl {
 
 	@Override
 	public void executeCallBack() throws ServletException, IOException {
-		if (option.equals("list") || option.equals("update")) {
+		request.setAttribute("budget", budgetSelected);
+		
+		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/budgetItem.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/budgetItem.list");
@@ -32,6 +34,7 @@ public class BudgetItemController extends BaseControllerImpl {
 	public void list() {
 		try {
 			budgetId = Integer.parseInt(request.getParameter("budgetId"));
+			budgetSelected = DataManager.selectId(Budget.class, budgetId);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
@@ -42,10 +45,8 @@ public class BudgetItemController extends BaseControllerImpl {
 		qp.addOrderByOption("codItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 
 		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
-		budgetSelected = DataManager.selectId(Budget.class, budgetId);
 
 		request.setAttribute("budgetItemList", budgetItemList);
-		request.setAttribute("budget", budgetSelected);
 	}
 
 	@Override
@@ -78,11 +79,24 @@ public class BudgetItemController extends BaseControllerImpl {
 		List<BudgetItem> budgetItemList = new ArrayList<BudgetItem>();
 		budgetItemList.add(budgetItem);
 		
-		request.setAttribute("budgetItemList", budgetItemList);
-		request.setAttribute("budget", budgetSelected);		
+		request.setAttribute("budgetItemList", budgetItemList);		
 	}
 	@Override
 	public void delete() {
 		DataManager.deleteId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
+	}
+
+	@Override
+	protected void applyFilterMovement() {
+		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, getQueryParameters());
+		request.setAttribute("budgetItemList", budgetItemList);
+	}
+
+	private QueryParameter getQueryParameters() {
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, budgetId, QueryTypeCondition.AND);
+		qp.addSingleParameter("codItem", QueryTypeFilter.CONTAINS, filterMap.get("filterItem"),
+				QueryTypeCondition.AND);
+		return qp;
 	}
 }
