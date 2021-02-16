@@ -5,59 +5,32 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.cp.fwk.data.DataManager;
 import com.cp.model.Budget;
 
-public class BudgetController {
+public class BudgetController extends BaseControllerImpl {
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "save":
-			saveBudget(request, response);
-			break;
-		case "update":
-			updateBudget(request, response);
-			break;
-		case "delete":
-			deleteBudget(request, response);
-			break;
-
-		default:
-			break;
-		}
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
 
 		if (option.equals("list") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/budget.jsp").forward(request, response);
 		} else if (option.equals("item")) {
-
-			String bi = request.getParameter("id");
-
-//			request.getRequestDispatcher("/WEB-INF/views/budgetItem.jsp").forward(request, response);
-			response.sendRedirect("/controle-pessoal/budgetItem.list?budgetId=" + bi);
+			response.sendRedirect("/controle-pessoal/budgetItem.list?budgetId=" + request.getParameter("id"));
 		} else {
 			response.sendRedirect("/controle-pessoal/budget.list");
 		}
-
 	}
 
-	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
+	@Override
+	public void list() {
 		Budget[] budgetList = DataManager.selectList(Budget[].class);
 
-		request.setAttribute("budgetList", budgetList);
-	}
+		request.setAttribute("budgetList", budgetList);	}
 
-	public static void saveBudget(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+	@Override
+	public void save() {
 		Budget budget = new Budget();
 		budget.setCodBudget(request.getParameter("codBudget"));
 		budget.setVersion(request.getParameter("version"));
@@ -76,8 +49,8 @@ public class BudgetController {
 		}
 	}
 
-	private static void updateBudget(HttpServletRequest request, HttpServletResponse response) {
-
+	@Override
+	public void update() {
 		Budget budget = DataManager.selectId(Budget.class, Integer.parseInt(request.getParameter("id")));
 
 		request.setAttribute("budget", budget);
@@ -86,10 +59,10 @@ public class BudgetController {
 		budgetList.add(budget);
 
 		request.setAttribute("budgetList", budgetList);
-
 	}
 
-	private static void deleteBudget(HttpServletRequest request, HttpServletResponse response) {
+	@Override
+	public void delete() {
 		DataManager.deleteId(Budget.class, Integer.parseInt(request.getParameter("id")));
 	}
 }

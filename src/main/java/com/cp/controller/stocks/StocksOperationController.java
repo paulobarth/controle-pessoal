@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cp.constants.generalInfo;
+import com.cp.controller.BaseControllerImpl;
 import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
@@ -26,25 +27,22 @@ import com.cp.model.view.StocksReportOperation;
 import com.cp.rest.WebService;
 import com.cp.rest.WebService.Dados;
 
-public class StocksOperationController {
+public class StocksOperationController extends BaseControllerImpl {
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
+		if (option.equals("list") || option.equals("update")) {
+			request.getRequestDispatcher("/WEB-INF/views/stocksOperation.jsp").forward(request, response);
+		} else if (option.startsWith("report")) {
+			request.getRequestDispatcher("/WEB-INF/views/stocksReportOperation.jsp").forward(request, response);
+		} else {
+			response.sendRedirect("/controle-pessoal/stocksOperation.list");
+		}		
+	}
+	
+	@Override
+	protected void specificOptionToExecute() {
 		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "save":
-			saveStocksOperation(request, response);
-			break;
-		case "update":
-			updateStocksOperation(request, response);
-			break;
-		case "delete":
-			deleteStocksOperation(request, response);
-			break;
-
 		case "reportList":
 		case "reportFilter":
 			reportListStocksOperation(request, response);
@@ -53,19 +51,10 @@ public class StocksOperationController {
 		default:
 			break;
 		}
-
-		if (option.equals("list") || option.equals("update")) {
-			request.getRequestDispatcher("/WEB-INF/views/stocksOperation.jsp").forward(request, response);
-		} else if (option.startsWith("report")) {
-			request.getRequestDispatcher("/WEB-INF/views/stocksReportOperation.jsp").forward(request, response);
-		} else {
-			response.sendRedirect("/controle-pessoal/stocksOperation.list");
-		}
 	}
-
-	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
+	
+	@Override
+	protected void list() {
 		QueryParameter qp = new QueryParameter();
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
@@ -73,10 +62,9 @@ public class StocksOperationController {
 
 		request.setAttribute("stocksOperationList", stocksOperationList);
 	}
-
-	public static void saveStocksOperation(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-
+	
+	@Override
+	protected void save() {
 		StocksOperation StocksOperation = new StocksOperation();
 		StocksOperation.setTypeOperation(request.getParameter("typeOperation"));
 		StocksOperation.setCodStock(request.getParameter("codStock"));
@@ -96,9 +84,9 @@ public class StocksOperationController {
 			DataManager.updateId(StocksOperation.class, StocksOperation);
 		}
 	}
-
-	private static void updateStocksOperation(HttpServletRequest request, HttpServletResponse response) {
-
+	
+	@Override
+	protected void update() {
 		StocksOperation stocksOperation = DataManager.selectId(StocksOperation.class,
 				Integer.parseInt(request.getParameter("id")));
 
@@ -108,10 +96,10 @@ public class StocksOperationController {
 		stocksOperationList.add(stocksOperation);
 
 		request.setAttribute("stocksOperationList", stocksOperationList);
-
 	}
-
-	private static void deleteStocksOperation(HttpServletRequest request, HttpServletResponse response) {
+	
+	@Override
+	protected void delete() {
 		DataManager.deleteId(StocksOperation.class, Integer.parseInt(request.getParameter("id")));
 	}
 

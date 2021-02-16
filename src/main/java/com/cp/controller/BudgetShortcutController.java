@@ -13,61 +13,31 @@ import com.cp.fwk.data.DataManager;
 import com.cp.model.BudgetItem;
 import com.cp.model.BudgetShortcut;
 
-public class BudgetShortcutController {
+public class BudgetShortcutController extends BaseControllerImpl {
 	
 	private static BudgetItem[] budgetItemList; 
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "save":
-			saveBudgetShortcut(request, response);
-			break;
-		case "update":
-			updateBudgetShortcut(request, response);
-			break;
-		case "delete":
-			deleteBudgetShortcut(request, response);
-			break;
-
-		default:
-			break;
-		}
-
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
 		if (option.equals("list") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/budgetShortcut.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/budgetShortcut.list");
-		}
-
+		}		
 	}
 
-	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
+	@Override
+	protected void list() {
 		budgetItemList = null;
 		setBudgetItemListAttribute(request);
 
 		BudgetShortcut[] budgetShortcutList = DataManager.selectList(BudgetShortcut[].class);
 		
-		request.setAttribute("budgetShortcutList", budgetShortcutList);
+		request.setAttribute("budgetShortcutList", budgetShortcutList);		
 	}
 
-	private static void setBudgetItemListAttribute(HttpServletRequest request) {
-		
-		if (budgetItemList == null) {
-			
-			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
-		}
-		request.setAttribute("budgetItemList", budgetItemList);
-	}
-
-	public static void saveBudgetShortcut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+	@Override
+	public void save() {
 		BudgetShortcut budgetShortcut = new BudgetShortcut();
 		budgetShortcut.setShortcut(request.getParameter("shortcut"));
 		budgetShortcut.setSplitter(request.getParameter("splitter"));
@@ -93,11 +63,11 @@ public class BudgetShortcutController {
 		} else {
 			budgetShortcut.setId(Integer.parseInt(request.getParameter("id")));
 			DataManager.updateId(BudgetShortcut.class, budgetShortcut);
-		}
+		}		
 	}
 
-	private static void updateBudgetShortcut(HttpServletRequest request, HttpServletResponse response) {
-		
+	@Override
+	public void update() {
 		setBudgetItemListAttribute(request);
 
 		BudgetShortcut budgetShortcut = DataManager.selectId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
@@ -108,10 +78,24 @@ public class BudgetShortcutController {
 		budgetShortcutList.add(budgetShortcut);
 
 		request.setAttribute("budgetShortcutList", budgetShortcutList);
-
 	}
 
-	private static void deleteBudgetShortcut(HttpServletRequest request, HttpServletResponse response) {
-		DataManager.deleteId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));
+	@Override
+	public void delete() {
+		DataManager.deleteId(BudgetShortcut.class, Integer.parseInt(request.getParameter("id")));		
+	}
+	
+
+	private static void setBudgetItemListAttribute(HttpServletRequest request) {
+		
+		if (budgetItemList == null) {
+			
+			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
+		}
+		request.setAttribute("budgetItemList", budgetItemList);
+	}
+
+	public static void saveBudgetShortcut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+
 	}
 }

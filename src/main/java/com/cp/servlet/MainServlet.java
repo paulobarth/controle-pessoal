@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.cp.controller.BaseController;
 import com.cp.controller.BudgetController;
 import com.cp.controller.BudgetItemController;
 import com.cp.controller.BudgetMovementController;
@@ -31,7 +32,19 @@ import com.cp.controller.stocks.StocksOperationController;
 							"/stocksGain.list",  		"/stocksGain.save", 		"/stocksGain.update",		"/stocksGain.delete"
 							})
 public class MainServlet extends HttpServlet {
+
+	private static final long serialVersionUID = -1347841828092604269L;
 	
+	private BaseController budgetController;
+	private BaseController budgetItemController;
+	private BaseController budgetShortcutController;
+	private BaseController movementController;
+	private BaseController budgetMovementController;
+	private BaseController importMovementController;
+	private BaseController stocksGainController;
+
+	private BaseController stocksOperationController;
+
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		executeController(request, response);
@@ -47,41 +60,66 @@ public class MainServlet extends HttpServlet {
 		String[] options = request.getServletPath().replace(".", ";").split(";");
 
 		request.getSession().setAttribute("acao", options[0].replace("/", ""));
-		
-		switch (options[0].toString()) {
+
+		try {
+			getController(options[0]).execute(request, response, options[1]);
+		} catch (Exception e) {
+		}
+	}
+
+	private BaseController getController(String option) {
+		BaseController baseController = null;
+		switch (option) {
 		case "/budget":
-			BudgetController.execute(request, response, options[1]);
-			break;
+			if (budgetController == null) {
+				budgetController = new BudgetController();
+			}
+			return budgetController;
 
 		case "/budgetItem":
-			BudgetItemController.execute(request, response, options[1]);
-			break;
+			if (budgetItemController == null) {
+				budgetItemController = new BudgetItemController();
+			}
+			return budgetItemController;
 			
 		case "/budgetShortcut":
-			BudgetShortcutController.execute(request, response, options[1]);
-			break;
+			if (budgetShortcutController == null) {
+				budgetShortcutController = new BudgetShortcutController();
+			}
+			return budgetShortcutController;
 
 		case "/movement":
-			MovementController.execute(request, response, options[1]);
-			break;
+			if (movementController == null) {
+				movementController = new MovementController();
+			}
+			return movementController;
 			
 		case "/budgetMovement":
-			BudgetMovementController.execute(request, response, options[1]);
-			break;
+			if (budgetMovementController == null) {
+				budgetMovementController = new BudgetMovementController();
+			}
+			return budgetMovementController;
 
 		case "/importMovement":
-			ImportMovementController.execute(request, response, options[1]);
-			break;
+			if (importMovementController == null) {
+				importMovementController = new ImportMovementController();
+			}
+			return importMovementController;
 
 		case "/stocksOperation":
-			StocksOperationController.execute(request, response, options[1]);
-			break;
+			if (stocksOperationController == null) {
+				stocksOperationController = new StocksOperationController();
+			}
+			return stocksOperationController;
 
 		case "/stocksGain":
-			StocksGainController.execute(request, response, options[1]);
-			break;
+			if (stocksGainController == null) {
+				stocksGainController = new StocksGainController();
+			}
+			return stocksGainController;
 		default:
 			break;
-		} 
+		}
+		return baseController;
 	}
 }

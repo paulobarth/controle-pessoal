@@ -15,47 +15,26 @@ import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Budget;
 import com.cp.model.BudgetItem;
 
-public class BudgetItemController {
+public class BudgetItemController extends BaseControllerImpl {
 
 	private static int budgetId = 0;
 	private static Budget budgetSelected;
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option) throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-
-			try {
-				budgetId = Integer.parseInt(request.getParameter("budgetId"));
-			} catch (Exception e) {
-				System.out.println(e.getMessage());
-			}
-			
-			select(request, response);
-			break;
-		case "save":
-			saveItemBudget(request, response);
-			break;
-		case "update":
-			updateBudget(request, response);
-			break;
-		case "delete":
-			deleteBudget(request, response);
-			break;
-
-		default:
-			break;
-		}
-
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
 		if (option.equals("list") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/budgetItem.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/budgetItem.list");
 		}
-		
 	}
-
-	public static void select(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	@Override
+	public void list() {
+		try {
+			budgetId = Integer.parseInt(request.getParameter("budgetId"));
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 
 		QueryParameter qp = new QueryParameter();
 		qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, budgetId, QueryTypeCondition.AND);
@@ -64,13 +43,13 @@ public class BudgetItemController {
 
 		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
 		budgetSelected = DataManager.selectId(Budget.class, budgetId);
-		
+
 		request.setAttribute("budgetItemList", budgetItemList);
 		request.setAttribute("budget", budgetSelected);
 	}
 
-	public static void saveItemBudget(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
+	@Override
+	public void save() {
 		BudgetItem budgetItem = new BudgetItem();
 		budgetItem.setIdBudget(budgetId);
 		budgetItem.setCodItem(request.getParameter("codItem"));
@@ -88,11 +67,10 @@ public class BudgetItemController {
 		} else {
 			budgetItem.setId(Integer.parseInt(request.getParameter("id")));
 			DataManager.updateId(BudgetItem.class, budgetItem);
-		}
+		}		
 	}
-
-	private static void updateBudget(HttpServletRequest request, HttpServletResponse response) {
-		
+	@Override
+	public void update() {
 		BudgetItem budgetItem = DataManager.selectId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
 		
 		request.setAttribute("budgetItem", budgetItem);
@@ -101,10 +79,10 @@ public class BudgetItemController {
 		budgetItemList.add(budgetItem);
 		
 		request.setAttribute("budgetItemList", budgetItemList);
-		request.setAttribute("budget", budgetSelected);
+		request.setAttribute("budget", budgetSelected);		
 	}
-
-	private static void deleteBudget(HttpServletRequest request, HttpServletResponse response) {
+	@Override
+	public void delete() {
 		DataManager.deleteId(BudgetItem.class, Integer.parseInt(request.getParameter("id")));
 	}
 }

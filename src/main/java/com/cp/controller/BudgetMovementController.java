@@ -21,37 +21,21 @@ import com.cp.model.BudgetItem;
 import com.cp.model.Movement;
 import com.cp.model.view.BudgetMovement;
 
-public class BudgetMovementController {
+public class BudgetMovementController extends BaseControllerImpl {
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "filter":
-			filterMovement(request, response);
-			break;
-
-		default:
-			break;
-		}
-
-		if (option.equals("list") || option.equals("filter")) {
-			request.getRequestDispatcher("/WEB-INF/views/budgetMovement.jsp").forward(request, response);
-		}
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
+		request.getRequestDispatcher("/WEB-INF/views/budgetMovement.jsp").forward(request, response);
 	}
 
-	private static void selectAll(HttpServletRequest request, HttpServletResponse response) {
-		
+	@Override
+	protected void list() {
 //		selectByPeriod(request, GeneralFunctions.getTodaySqlDate());
-		
+		super.list();
 	}
 	
-	public static void filterMovement(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		
+	@Override
+	protected void filter() {
 		selectByPeriod(request, GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementIni")),
 				GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementEnd"))
 				);
@@ -197,4 +181,5 @@ public class BudgetMovementController {
 
 		return result;
 	}
+
 }

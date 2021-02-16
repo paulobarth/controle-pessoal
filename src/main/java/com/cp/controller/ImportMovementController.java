@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.cp.load.ImportDataCSV;
 
-public class ImportMovementController {
+public class ImportMovementController extends BaseControllerImpl {
 
 	private static String[] originList = new String[] { "Conta Corrente - Santander", "Cartão Crédito - Santander",
 			"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
-
+	
 	private static Map<String, String> fileNameValidation;
-
+	
 	static {
 		fileNameValidation = new HashMap<String, String>();
 		fileNameValidation.put(originList[0], "Santander CC");
@@ -25,9 +25,13 @@ public class ImportMovementController {
 		fileNameValidation.put(originList[3], "porto");
 	}
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
+		request.getRequestDispatcher("/WEB-INF/views/importMovement.jsp").forward(request, response);		
+	}
 
+	@Override
+	protected void specificOptionToExecute() {
 		switch (option) {
 		case "option":
 			optionPage(request, response);
@@ -40,8 +44,6 @@ public class ImportMovementController {
 		default:
 			break;
 		}
-
-		request.getRequestDispatcher("/WEB-INF/views/importMovement.jsp").forward(request, response);
 	}
 
 	private static void optionPage(HttpServletRequest request, HttpServletResponse response) {
@@ -81,4 +83,5 @@ public class ImportMovementController {
 
 		optionPage(request, response);
 	}
+
 }

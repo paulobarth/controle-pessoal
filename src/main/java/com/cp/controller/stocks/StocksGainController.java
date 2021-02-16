@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.cp.controller.BaseControllerImpl;
 import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
@@ -17,34 +18,10 @@ import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.StocksGain;
 import com.cp.model.view.StocksReportOperation;
 
-public class StocksGainController {
+public class StocksGainController extends BaseControllerImpl {
 
-	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
-			throws ServletException, IOException {
-
-		switch (option) {
-		case "list":
-			selectAll(request, response);
-			break;
-		case "save":
-			saveStocksGain(request, response);
-			break;
-		case "update":
-			updateStocksGain(request, response);
-			break;
-		case "delete":
-			deleteStocksGain(request, response);
-			break;
-
-		case "reportList":
-		case "reportFilter":
-			reportListStocksGain(request, response);
-			break;
-
-		default:
-			break;
-		}
-
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
 		if (option.equals("list") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksGain.jsp").forward(request, response);
 		} else if (option.startsWith("report")) {
@@ -53,10 +30,22 @@ public class StocksGainController {
 			response.sendRedirect("/controle-pessoal/stocksGain.list");
 		}
 	}
+	
+	@Override
+	protected void specificOptionToExecute() {
+		switch (option) {
+		case "reportList":
+		case "reportFilter":
+			reportListStocksGain(request, response);
+			break;
 
-	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+		default:
+			break;
+		}
+	}
 
+	@Override
+	protected void list() {
 		QueryParameter qp = new QueryParameter();
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datGain", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
@@ -64,10 +53,9 @@ public class StocksGainController {
 
 		request.setAttribute("stocksOperationList", stocksOperationList);
 	}
-
-	public static void saveStocksGain(HttpServletRequest request, HttpServletResponse response)
-			throws IOException {
-
+	
+	@Override
+	protected void save() {
 		StocksGain StocksGain = new StocksGain();
 		StocksGain.setTypeGain(request.getParameter("typeGain"));
 		StocksGain.setCodStock(request.getParameter("codStock"));
@@ -85,9 +73,9 @@ public class StocksGainController {
 			DataManager.updateId(StocksGain.class, StocksGain);
 		}
 	}
-
-	private static void updateStocksGain(HttpServletRequest request, HttpServletResponse response) {
-
+	
+	@Override
+	protected void update() {
 		StocksGain stocksGain = DataManager.selectId(StocksGain.class,
 				Integer.parseInt(request.getParameter("id")));
 
@@ -97,10 +85,10 @@ public class StocksGainController {
 		stocksGainList.add(stocksGain);
 
 		request.setAttribute("stocksGainList", stocksGainList);
-
 	}
-
-	private static void deleteStocksGain(HttpServletRequest request, HttpServletResponse response) {
+	
+	@Override
+	protected void delete() {
 		DataManager.deleteId(StocksGain.class, Integer.parseInt(request.getParameter("id")));
 	}
 
@@ -255,4 +243,5 @@ public class StocksGainController {
 
 		sRPO.setStocksList(stockOper);
 	}
+
 }

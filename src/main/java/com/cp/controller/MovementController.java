@@ -20,12 +20,121 @@ import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.BudgetItem;
 import com.cp.model.Movement;
 
-public class MovementController {
+public class MovementController extends BaseControllerImpl {
 
-	private static BudgetItem[] budgetItemList;
-	private static Movement[] movementFilteredList;
-	private static Map<String, String> filterMap = new HashMap<String, String>();
+	private BudgetItem[] budgetItemList;
+	private Movement[] movementFilteredList;
+	private Map<String, String> filterMap = new HashMap<String, String>();
 
+	@Override
+	protected void specificOptionToExecute() {
+		shortcutMovement();
+	}
+
+	@Override
+	public void executeCallBack() throws ServletException, IOException {
+		if (option.equals("list")) {
+			filterMap.clear();
+		} else if ("save,delete,cancel,shortgen,shortrest,shortnew".indexOf(option) >= 0) {
+
+			if (!filterMap.isEmpty()) {
+				option = "filter";
+				applyFilterMovement(request);
+			}
+		}
+
+		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
+			request.getRequestDispatcher("/WEB-INF/views/movement.jsp").forward(request, response);
+		} else {
+			response.sendRedirect("/controle-pessoal/movement.list");
+		}		
+	}
+
+	@Override
+	protected void list() {
+		budgetItemList = null;
+		setBudgetItemListAttribute(request);
+
+		Movement[] movementList = DataManager.selectList(Movement[].class);
+
+		request.setAttribute("movementList", movementList);
+	}
+
+	@Override
+	protected void save() {
+		Movement movement = new Movement();
+		movement.setDescription(request.getParameter("description"));
+		movement.setDatMovement(request.getParameter("datMovement"));
+		movement.setDatFinancial(request.getParameter("datFinancial"));
+		movement.setOrigin(request.getParameter("origin"));
+		movement.setValMovement(request.getParameter("valMovement"));
+		movement.setTypeMovement(request.getParameter("typeMovement"));
+		movement.setSplitted(request.getParameter("splitted"));
+		movement.setValTotal(request.getParameter("valTotal"));
+		movement.setDocumentNumber("");
+
+		int idBudgetItem = Integer.parseInt(request.getParameter("idBudgetItem"));
+
+		for (int pos = 0; pos < budgetItemList.length; pos++) {
+
+			if (budgetItemList[pos].getId() == idBudgetItem) {
+
+				movement.setCodItem(budgetItemList[pos].getCodItem());
+				movement.setGrpItem(budgetItemList[pos].getGrpItem());
+				break;
+			}
+		}
+
+		String idParam = request.getParameter("id");
+
+		if (idParam.isEmpty()) {
+			List<Movement> lMovement = new ArrayList<Movement>();
+			lMovement.add(movement);
+			DataManager.insert(Movement.class, lMovement);
+		} else {
+			movement.setId(Integer.parseInt(request.getParameter("id")));
+			DataManager.updateId(Movement.class, movement);
+		}
+	}
+
+	@Override
+	protected void update() {
+		setBudgetItemListAttribute(request);
+
+		Movement movement = DataManager.selectId(Movement.class, Integer.parseInt(request.getParameter("id")));
+
+		request.setAttribute("movement", movement);
+
+		List<Movement> movementList = new ArrayList<Movement>();
+		movementList.add(movement);
+
+		request.setAttribute("movementList", movementList);
+	}
+	@Override
+	protected void delete() {
+		DataManager.deleteId(Movement.class, Integer.parseInt(request.getParameter("id")));
+	}
+
+	private void setBudgetItemListAttribute(HttpServletRequest request) {
+		if (budgetItemList == null) {
+
+			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
+		}
+		request.setAttribute("budgetItemList", budgetItemList);
+
+		String[] originList = { "Conta Corrente - Santander", "Cartão Crédito - Santander",
+				"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
+		request.setAttribute("originList", originList);
+	}
+
+	@Override
+	protected void filter() {
+		storeRequestFilterParameters(request);
+
+		applyFilterMovement(request);
+	}
+
+	/*
 	public static void execute(HttpServletRequest request, HttpServletResponse response, String option)
 			throws ServletException, IOException {
 
@@ -72,95 +181,9 @@ public class MovementController {
 		}
 
 	}
+*/
 
-	public static void selectAll(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
-		budgetItemList = null;
-		setBudgetItemListAttribute(request);
-
-		Movement[] movementList = DataManager.selectList(Movement[].class);
-
-		request.setAttribute("movementList", movementList);
-	}
-
-	private static void setBudgetItemListAttribute(HttpServletRequest request) {
-
-		if (budgetItemList == null) {
-
-			budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
-		}
-		request.setAttribute("budgetItemList", budgetItemList);
-
-		String[] originList = { "Conta Corrente - Santander", "Cartão Crédito - Santander",
-				"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
-		request.setAttribute("originList", originList);
-	}
-
-	public static void saveMovement(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
-		Movement movement = new Movement();
-		movement.setDescription(request.getParameter("description"));
-		movement.setDatMovement(request.getParameter("datMovement"));
-		movement.setDatFinancial(request.getParameter("datFinancial"));
-		movement.setOrigin(request.getParameter("origin"));
-		movement.setValMovement(request.getParameter("valMovement"));
-		movement.setTypeMovement(request.getParameter("typeMovement"));
-		movement.setSplitted(request.getParameter("splitted"));
-		movement.setValTotal(request.getParameter("valTotal"));
-		movement.setDocumentNumber("");
-
-		int idBudgetItem = Integer.parseInt(request.getParameter("idBudgetItem"));
-
-		for (int pos = 0; pos < budgetItemList.length; pos++) {
-
-			if (budgetItemList[pos].getId() == idBudgetItem) {
-
-				movement.setCodItem(budgetItemList[pos].getCodItem());
-				movement.setGrpItem(budgetItemList[pos].getGrpItem());
-				break;
-			}
-		}
-
-		String idParam = request.getParameter("id");
-
-		if (idParam.isEmpty()) {
-			List<Movement> lMovement = new ArrayList<Movement>();
-			lMovement.add(movement);
-			DataManager.insert(Movement.class, lMovement);
-		} else {
-			movement.setId(Integer.parseInt(request.getParameter("id")));
-			DataManager.updateId(Movement.class, movement);
-		}
-	}
-
-	private static void updateMovement(HttpServletRequest request, HttpServletResponse response) {
-
-		setBudgetItemListAttribute(request);
-
-		Movement movement = DataManager.selectId(Movement.class, Integer.parseInt(request.getParameter("id")));
-
-		request.setAttribute("movement", movement);
-
-		List<Movement> movementList = new ArrayList<Movement>();
-		movementList.add(movement);
-
-		request.setAttribute("movementList", movementList);
-	}
-
-	private static void deleteMovement(HttpServletRequest request, HttpServletResponse response) {
-		DataManager.deleteId(Movement.class, Integer.parseInt(request.getParameter("id")));
-	}
-
-	public static void filterMovement(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-
-		storeRequestFilterParameters(request);
-
-		applyFilterMovement(request);
-	}
-
-	private static void applyFilterMovement(HttpServletRequest request) {
+	private void applyFilterMovement(HttpServletRequest request) {
 
 		setBudgetItemListAttribute(request);
 
@@ -174,7 +197,7 @@ public class MovementController {
 		sendMapFilterParametersToRequest(request);
 	}
 
-	private static void storeRequestFilterParameters(HttpServletRequest request) {
+	private void storeRequestFilterParameters(HttpServletRequest request) {
 
 		filterMap.clear();
 		Enumeration<?> e = request.getParameterNames();
@@ -204,14 +227,14 @@ public class MovementController {
 		}
 	}
 
-	private static void sendMapFilterParametersToRequest(HttpServletRequest request) {
+	private void sendMapFilterParametersToRequest(HttpServletRequest request) {
 
 		for (String key : filterMap.keySet()) {
 			request.setAttribute(key, filterMap.get(key));
 		}
 	}
 
-	private static QueryParameter getQueryParameters(HttpServletRequest request) {
+	private QueryParameter getQueryParameters(HttpServletRequest request) {
 
 		QueryParameter qp = new QueryParameter();
 
@@ -240,7 +263,7 @@ public class MovementController {
 		return qp;
 	}
 
-	private static void shortcutMovement(HttpServletRequest request, HttpServletResponse response, String option) {
+	private void shortcutMovement() {
 
 		switch (option) {
 		case "shortgen":
@@ -275,7 +298,7 @@ public class MovementController {
 
 	}
 
-	private static String[] getShortcutFromScreen(String shortcut) {
+	private String[] getShortcutFromScreen(String shortcut) {
 		
 		String[] sc = shortcut.split("-");
 		if (sc.length == 2) {
