@@ -13,41 +13,43 @@
 
 		<a href="/" class="navbar-brand">CP</a>
 
-		<ul class="nav navbar-nav">
+		<ul class="nav navbar-nav me-auto mb-2 mb-lg-0">
 
-			<li class="nav-item dropdown ${acao eq 'budget' ? 'active' : ''}"><a
-				class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-				role="button" aria-haspopup="true" aria-expanded="false"
-				onmouseover="cadastroMenu()" id="cadMenu">Cadastro</a>
+			<li class="nav-item dropdown"><a
+				class="nav-link dropdown-toggle ${acao.startsWith('budget') ? 'active' : ''}"
+				data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+				aria-expanded="false" onmouseover="cadastroMenu()" id="cadMenu">Cadastro</a>
 				<div class="dropdown-menu">
 					<a class="dropdown-item" href="/controle-pessoal/budget.list">Orçamento</a>
-					<br> <a class="dropdown-item"
-						href="/controle-pessoal/budget.list">Another action</a>
-				</div>
-			</li>
+					<a
+						class="dropdown-item ${acao eq 'budgetShortcut' ? 'active' : ''}"
+						href="/controle-pessoal/budgetShortcut.list">Atalho</a>
+				</div></li>
 
-			<li class="nav-item ${acao eq 'budgetShortcut' ? 'active' : ''}"><a
-				class="nav-link" href="/controle-pessoal/budgetShortcut.list">Atalho</a></li>
+			<li class="nav-item"><a
+				class="nav-link ${acao eq 'movement' ? 'active' : ''}"
+				href="/controle-pessoal/movement.list">Movimento</a></li>
+			<li class="nav-item"><a
+				class="nav-link ${acao eq 'budgetMovement' ? 'active' : ''}"
+				href="/controle-pessoal/budgetMovement.list">Orçado x Realizado</a></li>
 
-			<li class="nav-item ${acao eq 'movement' ? 'active' : ''}"><a
-				class="nav-link" href="/controle-pessoal/movement.list">Movimento</a></li>
-			<li class="nav-item ${acao eq 'budgetMovement' ? 'active' : ''}"><a
-				class="nav-link" href="/controle-pessoal/budgetMovement.list">Orçado
-					x Realizado</a></li>
-
-			<li class="nav-item dropdown ${acao eq 'budget' ? 'active' : ''}"><a
-				class="nav-link dropdown-toggle" data-toggle="dropdown" href="#"
-				role="button" aria-haspopup="true" aria-expanded="false">Ações Bovespa</a>
+			<li class="nav-item dropdown"><a
+				class="nav-link dropdown-toggle ${acao.startsWith('stocks') ? 'active' : ''}"
+				data-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+				aria-expanded="false">Ações Bovespa</a>
 				<div class="dropdown-menu">
 					<a class="dropdown-item"
-						href="/controle-pessoal/stocksOperation.list">Registrar Operação</a> <br>
-					<a class="dropdown-item" href="/controle-pessoal/stocksGain.list">Registrar Div JCP</a>
-					<br>
-				  	<div class="dropdown-divider"></div>
-				  	<br>
-					<a class="dropdown-item" href="/controle-pessoal/stocksOperation.reportList">Relatório Operações</a>
-					<br>
-					<a class="dropdown-item" href="/controle-pessoal/stocksReportGain.list">Relatório Ganhos</a>
+						href="/controle-pessoal/stocksOperation.list">Registrar
+						Operação</a>
+					<a class="dropdown-item"
+						href="/controle-pessoal/stocksGain.list">Registrar Div JCP</a>
+					<div class="dropdown-divider"></div>
+					<a class="dropdown-item"
+						href="/controle-pessoal/stocksOperation.reportList">Relatório
+						Operações</a>
+					<a class="dropdown-item"
+						href="/controle-pessoal/stocksReportGain.list">Relatório
+						Ganhos</a>
 				</div></li>
 
 		</ul>
