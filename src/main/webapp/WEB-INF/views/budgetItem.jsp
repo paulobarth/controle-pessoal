@@ -135,6 +135,7 @@
 
 <script>
 	function bodyLoadFunction() {
+		filterLoadPageFunction(${filterCollapsed});
 		registerLoadPageFunction(${budgetItem.id});
 	}
 </script>

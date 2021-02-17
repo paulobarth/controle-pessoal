@@ -44,8 +44,10 @@ public class StocksOperationController extends BaseControllerImpl {
 	protected void specificOptionToExecute() {
 		switch (option) {
 		case "reportList":
+			applyFilterMovement();
+			break;
 		case "reportFilter":
-			reportListStocksOperation(request, response);
+			super.filter();
 			break;
 
 		default:
@@ -103,8 +105,8 @@ public class StocksOperationController extends BaseControllerImpl {
 		DataManager.deleteId(StocksOperation.class, Integer.parseInt(request.getParameter("id")));
 	}
 
-	private static void reportListStocksOperation(HttpServletRequest request, HttpServletResponse response) {
-
+	@Override
+	protected void applyFilterMovement() {
 		String lastTypeOperation = "";
 		boolean bRecalcLastMedPrice = false;
 		Double lastMedPrice = 0.00;

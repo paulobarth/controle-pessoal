@@ -3,6 +3,7 @@
 
 <script>
 	function bodyLoadFunction() {
+		filterLoadPageFunction(${filterCollapsed});
 	}
 </script>
 
