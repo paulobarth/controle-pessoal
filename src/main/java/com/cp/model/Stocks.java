@@ -8,6 +8,8 @@ public class Stocks {
 	private String companyName;
 	private Double actualPrice;
 	private String updateAt;
+	private String codPortfolio;
+
 	public int getId() {
 		return id;
 	}
@@ -43,5 +45,11 @@ public class Stocks {
 	}
 	public void setUpdateAt(String updateAt) {
 		this.updateAt = updateAt;
+	}
+	public String getCodPortfolio() {
+		return codPortfolio;
+	}
+	public void setCodPortfolio(String codPortfolio) {
+		this.codPortfolio = codPortfolio;
 	}
 }

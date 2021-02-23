@@ -15,6 +15,7 @@ import com.cp.controller.BudgetMovementController;
 import com.cp.controller.BudgetShortcutController;
 import com.cp.controller.ImportMovementController;
 import com.cp.controller.MovementController;
+import com.cp.controller.stocks.StocksController;
 import com.cp.controller.stocks.StocksGainController;
 import com.cp.controller.stocks.StocksOperationController;
 
@@ -27,6 +28,7 @@ import com.cp.controller.stocks.StocksOperationController;
 							"/budgetShortcut.list", "/budgetShortcut.save", "/budgetShortcut.update", 	"/budgetShortcut.delete",
 							"/budgetMovement.list", "/budgetMovement.filter",
 							"/importMovement.option",	"/importMovement.import",
+							"/stocks.list",  			"/stocks.save", 			"/stocks.update",			"/stocks.delete",
 							"/stocksOperation.list",  	"/stocksOperation.save", 	"/stocksOperation.update",	"/stocksOperation.delete",
 							"/stocksOperation.reportList", "/stocksOperation.reportFilter",
 							"/stocksGain.list",  		"/stocksGain.save", 		"/stocksGain.update",		"/stocksGain.delete"
@@ -41,6 +43,7 @@ public class MainServlet extends HttpServlet {
 	private BaseController movementController;
 	private BaseController budgetMovementController;
 	private BaseController importMovementController;
+	private BaseController stocksController;
 	private BaseController stocksGainController;
 	private BaseController stocksOperationController;
 
@@ -104,6 +107,12 @@ public class MainServlet extends HttpServlet {
 				importMovementController = new ImportMovementController();
 			}
 			return importMovementController;
+
+		case "/stocks":
+			if (stocksController == null) {
+				stocksController = new StocksController();
+			}
+			return stocksController;
 
 		case "/stocksOperation":
 			if (stocksOperationController == null) {

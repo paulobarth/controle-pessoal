@@ -39,6 +39,9 @@
 				aria-expanded="false">Ações Bovespa</a>
 				<div class="dropdown-menu">
 					<a class="dropdown-item"
+						href="/controle-pessoal/stocks.list">Registrar
+						Ações</a>
+					<a class="dropdown-item"
 						href="/controle-pessoal/stocksOperation.list">Registrar
 						Operação</a>
 					<a class="dropdown-item"
