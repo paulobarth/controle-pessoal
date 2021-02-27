@@ -59,6 +59,11 @@ tr.Info {
 							</select>
 						</div>
 
+						<div class="col-xs-2">
+							<label for="ex2">Ano para IR</label> <input
+								class="form-control" id="datepickeroper" name="filterYearOperation"
+								type="text" value="${filterYearOperation}">
+						</div>
 						<br> <input class="btn btn-success" type="submit"
 							value="Filtrar">
 					</form>
@@ -313,6 +318,10 @@ tr.Info {
 <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
+	$(function() {
+		$("#datepickeroper").datepicker();
+	});
+
 	$(function() {
 		$("#filterDatMovementIni").datepicker({
 			format : "mm-yyyy",

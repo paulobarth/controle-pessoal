@@ -119,15 +119,17 @@ public class StocksOperationController extends BaseControllerImpl {
 		List<StocksReportActualPosition> listActualPosition = new ArrayList<StocksReportActualPosition>();
 
 		String filterStockItem = request.getParameter("filterStockItem");
+		String filterYearOperation = request.getParameter("filterYearOperation");
 		boolean filterShowOnlyOpened = Boolean.parseBoolean(request.getParameter("filterShowOnlyOpened"));
 		boolean filterStockPrice = Boolean.parseBoolean(request.getParameter("filterStockPrice"));
 
-		if (filterStockItem != null) {
-			request.setAttribute("filterStockItem", filterStockItem);
-			request.setAttribute("filterShowOnlyOpened", filterShowOnlyOpened);
-		}
-
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		if (filterYearOperation != null && !filterYearOperation.isEmpty()) {
+			qp.addBetweenParameter("datOperation",
+					new String[] {GeneralFunctions.stringDatetoSql("01/01/1960"),
+								  GeneralFunctions.stringDatetoSql(filterYearOperation)
+					}, QueryTypeCondition.AND);
+		}
 		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
 
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
