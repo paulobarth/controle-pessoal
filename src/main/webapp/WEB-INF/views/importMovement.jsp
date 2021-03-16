@@ -16,7 +16,7 @@
 				<div class="col-md-8">
 					<div class="custom-file">
 						<label for="ex1">Arquivo</label> <input type="file"
-							class="form-control" name="selectedFile">
+							class="form-control" name="selectedFile" value="${selectedFile}">
 
 					</div>
 				</div>
@@ -26,8 +26,8 @@
 		<div class="row">
 			<div class="col">
 
-				<div class="col-xs-3">
-					<label for="ex3">Origem</label> <select class="form-control"
+				<div class="col-xs-6">
+					<label for="ex6">Origem</label> <select class="form-control"
 						name="selectedOrigin">
 						<c:forEach items="${originList}" var="origin">
 							<option value="${origin}"

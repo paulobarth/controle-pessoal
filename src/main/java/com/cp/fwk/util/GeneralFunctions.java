@@ -97,6 +97,12 @@ public class GeneralFunctions {
 		return resultado_final; // Retorna o resultado_final :P
 	}
 	
+//	Converte de dd/mm/aaaa para mm/dd/aaaa
+	public static String convertDateBRToUS (String date) {
+		String[] splitDate = date.split("/");
+		return splitDate[1] + "/" + splitDate[0] + "/" + splitDate[2];
+	}
+
 	public static String convertMonthToText (String month) {
 		return convertMonthToText(Integer.parseInt(month));
 	}

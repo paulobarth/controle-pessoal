@@ -151,13 +151,13 @@ th {
 
 						<div class="col-xs-1">
 							<label for="ex1">Data Inicial</label> <input class="form-control"
-								id="datepickerfilterini" name="filterDatFinancialIni"
-								type="text" value="${filterDatFinancialIni}">
+								id="datepickerfilterini" name="filterDatMovementIni"
+								type="text" value="${filterDatMovementIni}">
 						</div>
 						<div class="col-xs-1">
 							<label for="ex1">Data Final</label> <input class="form-control"
-								id="datepickerfilterend" name="filterDatFinancialEnd"
-								type="text" value="${filterDatFinancialEnd}">
+								id="datepickerfilterend" name="filterDatMovementEnd"
+								type="text" value="${filterDatMovementEnd}">
 						</div>
 						<div class="col-xs-3">
 							<label for="ex3">Descrição</label> <input class="form-control"

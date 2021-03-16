@@ -52,9 +52,16 @@ public class MovementController extends BaseControllerImpl {
 	@Override
 	protected void list() {
 		budgetItemList = null;
+
 		setBudgetItemListAttribute(request);
 
-		Movement[] movementList = DataManager.selectList(Movement[].class);
+		QueryParameter qp = new QueryParameter();
+		qp.addBetweenParameter("datMovement",
+				new String[] { GeneralFunctions.stringDatetoSql("01/01/2021"),
+						GeneralFunctions.stringDatetoSql("12/31/2021") },
+				QueryTypeCondition.AND);
+
+		Movement[] movementList = DataManager.selectList(Movement[].class, qp);
 
 		request.setAttribute("movementList", movementList);
 	}
@@ -141,9 +148,9 @@ public class MovementController extends BaseControllerImpl {
 		qp.addSingleParameter("description", QueryTypeFilter.CONTAINS, filterMap.get("filterDescription"),
 				QueryTypeCondition.AND);
 
-		qp.addBetweenParameter("datFinancial",
-				new String[] { GeneralFunctions.stringDatetoSql(filterMap.get("filterDatFinancialIni")),
-						GeneralFunctions.stringDatetoSql(filterMap.get("filterDatFinancialEnd")) },
+		qp.addBetweenParameter("datMovement",
+				new String[] { GeneralFunctions.stringDatetoSql(filterMap.get("filterDatMovementIni")),
+						GeneralFunctions.stringDatetoSql(filterMap.get("filterDatMovementEnd")) },
 				QueryTypeCondition.AND);
 
 		qp.addSingleParameter("typeMovement", QueryTypeFilter.EQUAL, filterMap.get("filterTypeMovement"),

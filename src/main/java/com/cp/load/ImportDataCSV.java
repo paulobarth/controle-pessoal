@@ -174,4 +174,72 @@ public class ImportDataCSV {
 
 		return DataManager.isDataUnique(Movement[].class, qp);
 	}
+
+	public static String importMovementCCSantanderCSV(String file, String origin, String datFinancial,
+	boolean cartaoCredito) {
+
+		Double val;
+
+		JsonArray datasets = LoadCSV.readFileToJson(file, ";");
+
+		Iterator<JsonElement> iterator = datasets.iterator();
+
+		while (iterator.hasNext()) {
+
+			JsonObject jObj = iterator.next().getAsJsonObject();
+
+			val = Double.parseDouble(jObj.get("valMovement").getAsString().replace(".", "").replace(",", "."));
+
+			List<Movement> lMovement = new ArrayList<Movement>();
+			Movement movement = new Movement();
+
+			movement.setDescription(jObj.get("description").getAsString());
+
+			String[] splitDate = jObj.get("datMovement").getAsString().split("/");
+			// mm/dd/aaaa
+			movement.setDatMovement(splitDate[1] + "/" + splitDate[0] + "/" + splitDate[2]);
+
+			datFinancial = calculateDatFinancial(movement.getDescription(), movement.getDatMovement());
+			if (!datFinancial.isEmpty()) {
+				movement.setDatFinancial(datFinancial);
+			} else {
+				movement.setDatFinancial(movement.getDatMovement());
+			}
+//			if (datFinancial.isEmpty()) {
+//				movement.setDatFinancial(movement.getDatMovement());
+//			} else {
+//				movement.setDatFinancial(datFinancial);
+//			}
+
+			movement.setOrigin(origin);
+			movement.setValMovement(GeneralFunctions.truncDouble(val, 2));
+			movement.setSplitted(0);
+			movement.setDocumentNumber(jObj.get("documentNumber").getAsString());
+
+			if (cartaoCredito) {
+
+				if (movement.getValMovement() < 0) {
+					movement.setTypeMovement("Receita");
+					movement.setValMovement(movement.getValMovement() * -1);
+				} else {
+					movement.setTypeMovement("Despesa");
+				}
+			} else {
+				if (movement.getValMovement() < 0) {
+					movement.setTypeMovement("Despesa");
+					movement.setValMovement(movement.getValMovement() * -1);
+				} else {
+					movement.setTypeMovement("Receita");
+				}
+			}
+			movement.setValTotal(movement.getValMovement());
+
+			if (isMovementUnique(movement)) {
+				lMovement.add(movement);
+				DataManager.insert(Movement.class, lMovement);
+			}
+		}
+
+		return "OK";
+	}
 }

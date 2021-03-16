@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.cp.load.ImportDataCSV;
+import com.cp.load.ImportDataExcel;
 
 public class ImportMovementController extends BaseControllerImpl {
 
@@ -58,25 +59,50 @@ public class ImportMovementController extends BaseControllerImpl {
 		String msg = "";
 
 		String initials = fileNameValidation.get(selectedOrigin);
-		if (!selectedFile.startsWith(initials)) {
+		if (selectedFile == null) {
+			msg = "ERRO: Arquivo inválido.";
+		} else if (!selectedFile.startsWith(initials)) {
 			msg = "ERRO: Nome do arquivo inválido, deve iniciar com " + initials + ".";
+		} else if (selectedOrigin.contains("Cartão Crédito") && datFinancial.isEmpty()) {
+			msg = "ERRO: Favor informar data financeira.";
 		} else {
 
 			selectedFile = "/Users/paulobarth/Downloads/" + selectedFile;
 
 			switch (selectedOrigin) {
+			case "Conta Corrente - Santander":
+//				msg = ImportDataCSV.importMovementCCSantanderCSV(selectedFile, selectedOrigin, datFinancial, false);
+				try {
+					msg = ImportDataExcel.importMovementDebitSantander(selectedFile, selectedOrigin);
+				} catch (IOException e) {
+					msg = e.getMessage();
+					e.printStackTrace();
+				}
+				break;
+
 			case "Cartão Crédito - NuBank Jaque":
-				msg = ImportDataCSV.importMovementFromNuBank(selectedFile, selectedOrigin, datFinancial);
+//				msg = ImportDataCSV.importMovementFromNuBank(selectedFile, selectedOrigin, datFinancial);
 				break;
 
 			case "Cartão Crédito - Santander":
-				msg = ImportDataCSV.importMovementStandardCSV(selectedFile, selectedOrigin, datFinancial, true);
+				try {
+					msg = ImportDataExcel.importMovementCreditSantander(selectedFile, selectedOrigin, datFinancial);
+				} catch (IOException e) {
+					msg = e.getMessage();
+					e.printStackTrace();
+				}
 				break;
 
 			default:
-				msg = ImportDataCSV.importMovementStandardCSV(selectedFile, selectedOrigin, datFinancial, false);
+//				msg = ImportDataCSV.importMovementStandardCSV(selectedFile, selectedOrigin, datFinancial, false);
 				break;
 			}
+		}
+		
+		if (msg.startsWith("ERRO:")) {
+			request.setAttribute("selectedFile", selectedFile);
+			request.setAttribute("datFinancial", datFinancial);
+			request.setAttribute("selectedOrigin", selectedOrigin);
 		}
 
 		request.setAttribute("importResultMessage", msg);
