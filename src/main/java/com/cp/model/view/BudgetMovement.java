@@ -96,7 +96,7 @@ public class BudgetMovement {
 		BudgetMovementDetail bmd = new BudgetMovementDetail(qtdMonths);
 		bmd.setDescription(movement.getDescription());
 
-		String[] mList = movement.getDatFinancial().split("/");
+		String[] mList = movement.getDatMovement().split("/");
 
 		if (mList.length == 3) {
 

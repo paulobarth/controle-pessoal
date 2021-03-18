@@ -30,7 +30,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 	@Override
 	protected void list() {
-//		selectByPeriod(request, GeneralFunctions.getTodaySqlDate());
+		selectByPeriod(request, "2021-01-01", "2021-12-31");
 		super.list();
 	}
 	
@@ -44,12 +44,12 @@ public class BudgetMovementController extends BaseControllerImpl {
 	private static void selectByPeriod(HttpServletRequest request, String sqlDateIni, String sqlDateEnd) {
 
 		List<String> monthList = new ArrayList<String>();
+		int month;
 
 		int monthIni = Integer.valueOf(getDate(sqlDateIni, "month"));
 		int monthEnd = Integer.valueOf(getDate(sqlDateEnd, "month"));
 		int qtdMonths = monthEnd - monthIni;
 		for (int cont = monthIni; cont <= monthEnd; cont ++) {
-			
 			monthList.add("Mes " + String.valueOf(cont));
 		}
 		
@@ -63,12 +63,12 @@ public class BudgetMovementController extends BaseControllerImpl {
 		bmUnrecDespesa.setGrpItem("Despesa");
 		bmUnrecDespesa.setCodItem("Despesa não reconhecida");
 		bmUnrecDespesa.setValItem(0.00);
-		for (int month = 0; month <= qtdMonths; month++) {
-			bmUnrecReceita.setValMovement("Receita", month, 0.00);
-			bmUnrecDespesa.setValMovement("Despesa", month, 0.00);
+		for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
+			bmUnrecReceita.setValMovement("Receita", monthCont, 0.00);
+			bmUnrecDespesa.setValMovement("Despesa", monthCont, 0.00);
 		}
 		
-		BudgetItem[] budgetItemList = GeneralDataBO.getCurrentBudgetItemList();
+		BudgetItem[] budgetItemList = GeneralDataBO.getCurrentBudgetItemListSeqOrderValid();
 		
 		Map<String, BudgetMovement> budgetMovList = new HashMap<String, BudgetMovement>();
 		
@@ -81,8 +81,8 @@ public class BudgetMovementController extends BaseControllerImpl {
 			budgetMovement.setCodItem(budgetItem.getCodItem());
 			budgetMovement.setGrpItem(budgetItem.getGrpItem());
 			budgetMovement.setValItem(budgetItem.getValItem());
-			for (int month = 0; month <= qtdMonths; month++) {
-				budgetMovement.setValMovement("Despesa", month, 0.0);
+			for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
+				budgetMovement.setValMovement("Despesa", monthCont, 0.0);
 			}	
 
 			budgetMovList.put(budgetItem.getCodItem(), budgetMovement);
@@ -91,7 +91,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 		String datIni = getDate(sqlDateIni, "ini");
 		String datEnd = getDate(sqlDateEnd, "end");
 		QueryParameter qpMovement = new QueryParameter();
-		qpMovement.addBetweenParameter("datFinancial",
+		qpMovement.addBetweenParameter("datMovement",
 				new String[] {datIni, datEnd},
 				QueryTypeCondition.AND);
 		qpMovement.addOrderByOption("description", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
@@ -101,7 +101,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 		for (int pos = 0; pos < movementList.length; pos++) {
 			
 			Movement movement = movementList[pos];
-			int month = GeneralFunctions.getMonthOfSqlDate(movement.getDatFinancial());
+			month = GeneralFunctions.getMonthOfSqlDate(movement.getDatMovement());
 			month--;
 			
 			try {
@@ -125,22 +125,51 @@ public class BudgetMovementController extends BaseControllerImpl {
 			}
 		}
 		
+		String typeGrpItem = "";
+		
 		ArrayList<BudgetMovement> bM = new ArrayList<BudgetMovement>();
 		for (int pos = 0; pos < budgetItemList.length; pos++) {
-			
+
 			BudgetItem budgetItem = budgetItemList[pos];
+
+			if (!typeGrpItem.isEmpty() && !typeGrpItem.equals(budgetItem.getGrpItem()) ) {
+				BudgetMovement aaa = new BudgetMovement(11);
+				aaa.setCodItem("TOTAL GRUPO");
+				aaa.setGrpItem(typeGrpItem);
+
+				Double totalPrevisto = 0.00;
+				for (BudgetItem budgetItemAcumulate : budgetItemList) {
+					
+					if (!budgetItemAcumulate.getGrpItem().equals(typeGrpItem)) {
+						continue;
+					}
+
+					BudgetMovement budgetMovement = budgetMovList.get(budgetItemAcumulate.getCodItem());
+
+					try {
+						for (int posMov = 0; posMov < budgetMovement.getValMovement().length; posMov++) {
+							aaa.setValMovement(typeGrpItem, posMov, budgetMovement.getValMovement()[posMov].doubleValue());
+						}
+					} catch (Exception e) {
+					}
+					totalPrevisto += budgetMovement.getValItem();
+				}		
+				aaa.setValItem(totalPrevisto);
+				bM.add(aaa);
+			}
+			typeGrpItem = budgetItem.getGrpItem();
 			
 			bM.add(budgetMovList.get(budgetItem.getCodItem()));
 		}
 		
-		for (int month = 0; month <= qtdMonths; month++) {
-			if (bmUnrecDespesa.getValMovement()[month].compareTo(new BigDecimal(0)) != 0) {
+		for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
+			if (bmUnrecDespesa.getValMovement()[monthCont].compareTo(new BigDecimal(0)) != 0) {
 				bM.add(bmUnrecDespesa);
 				break;
 			}
 		}
-		for (int month = 0; month <= qtdMonths; month++) {
-			if (bmUnrecReceita.getValMovement()[month].compareTo(new BigDecimal(0)) != 0) {
+		for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
+			if (bmUnrecReceita.getValMovement()[monthCont].compareTo(new BigDecimal(0)) != 0) {
 				bM.add(bmUnrecReceita);
 				break;
 			}
@@ -148,8 +177,8 @@ public class BudgetMovementController extends BaseControllerImpl {
 		
 		for (BudgetMovement teste : bM) {
 			
-			for (int month = 0; month <= qtdMonths; month++) {
-				teste.negateValMovement(month);
+			for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
+				teste.negateValMovement(monthCont);
 			}
 		}
 

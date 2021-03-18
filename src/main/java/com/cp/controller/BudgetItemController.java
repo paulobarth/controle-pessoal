@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 
 import com.cp.fwk.data.DataManager;
 import com.cp.fwk.util.GeneralFunctions;
@@ -41,18 +42,20 @@ public class BudgetItemController extends BaseControllerImpl {
 
 		QueryParameter qp = new QueryParameter();
 		qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, budgetId, QueryTypeCondition.AND);
-		qp.addOrderByOption("grpItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		qp.addOrderByOption("codItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		qp.addOrderByOption("seqOrder", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 
 		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
 
 		request.setAttribute("budgetItemList", budgetItemList);
+
+		calculateTotalByGroup(budgetItemList, request);
 	}
 
 	@Override
 	public void save() {
 		BudgetItem budgetItem = new BudgetItem();
 		budgetItem.setIdBudget(budgetId);
+		budgetItem.setSeqOrder(request.getParameter("seqOrder"));
 		budgetItem.setCodItem(request.getParameter("codItem"));
 		budgetItem.setValItem(request.getParameter("valItem"));
 		budgetItem.setGrpItem(request.getParameter("grpItem"));
@@ -98,5 +101,21 @@ public class BudgetItemController extends BaseControllerImpl {
 		qp.addSingleParameter("codItem", QueryTypeFilter.CONTAINS, filterMap.get("filterItem"),
 				QueryTypeCondition.AND);
 		return qp;
+	}
+	private void calculateTotalByGroup(BudgetItem[] budgetItemList, HttpServletRequest request) {
+		double totalDespesa = 0.00;
+		double totalReceita = 0.00;
+
+		for (BudgetItem budgetItem : budgetItemList) {
+			if (budgetItem.getGrpItem().equals("Despesa")) {
+				totalDespesa += budgetItem.getValItem();
+			} else if (budgetItem.getGrpItem().equals("Receita")) {
+				totalReceita += budgetItem.getValItem();
+			}
+		}
+
+		request.setAttribute("totalGrupoDespesa", totalDespesa);
+		request.setAttribute("totalGrupoReceita", totalReceita);
+		
 	}
 }

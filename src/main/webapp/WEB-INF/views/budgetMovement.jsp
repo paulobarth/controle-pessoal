@@ -1,4 +1,3 @@
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@ include file="../common/header.jspf"%>
 <%@ include file="../common/navigation.jspf"%>
 
@@ -93,7 +92,8 @@ th {
 			<c:forEach items="${budgetMovList}" var="budgetMov">
 
 				<tr data-toggle="collapse"
-					data-target=".collapseItem${budgetMov.id}" aria-expanded="true">
+					data-target=".collapseItem${budgetMov.id}" aria-expanded="true"
+					class="${budgetMov.codItem == 'TOTAL GRUPO' ? 'table-secondary' : 'None'}">
 
 					<td>${budgetMov.grpItem}</td>
 					<td>${budgetMov.codItem}</td>

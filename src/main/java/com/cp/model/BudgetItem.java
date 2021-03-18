@@ -9,6 +9,7 @@ public class BudgetItem {
 	private String grpItem;
 	private String type;
 	private int dayVencto;
+	private int seqOrder;
 	
 	public int getId() {
 		return id;
@@ -60,5 +61,14 @@ public class BudgetItem {
 			dayVencto = "0";
 		}
 		this.dayVencto = Integer.parseInt(dayVencto);
+	}
+	public int getSeqOrder() {
+		return seqOrder;
+	}
+	public void setSeqOrder(String seqOrder) {
+		setSeqOrder(Integer.parseInt(seqOrder));
+	}
+	public void setSeqOrder(int seqOrder) {
+		this.seqOrder = seqOrder;
 	}
 }

@@ -18,6 +18,10 @@
 						method="post">
 
 						<div class="form-group row">
+							<div class="col-xs-2">
+								<label for="ex1">Ordenação</label> <input class="form-control"
+									name="seqOrder" type="number" value="${budgetItem.seqOrder}">
+							</div>
 							<div class="col-xs-3">
 								<label for="ex1">Item</label> <input class="form-control"
 									name="codItem" type="text" value="${budgetItem.codItem}">
@@ -101,9 +105,43 @@
 	</div>
 
 			
+	<div class="row">
+		<div class="col">
+			<div class="col-xs-3">
+			<table>
+				<tr>
+					<td>
+						<b>Despesa:</b>
+					</td>
+					<td>
+						&nbsp;&nbsp;
+						<div class="pull-right">
+							<fmt:formatNumber value="${totalGrupoDespesa}" type="number"
+								minFractionDigits="2" />
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<b>Receita:</b>
+					</td>
+					<td>
+						&nbsp;&nbsp;
+						<div class="pull-right">
+							<fmt:formatNumber value="${totalGrupoReceita}" type="number"
+								minFractionDigits="2" />
+						</div>
+					</td>
+				</tr>
+			
+			</table>
+		</div>
+	</div>
+
 	<table class="table table-striped">
 
 		<thead>
+			<th>Ordenação</th>
 			<th>Item</th>
 			<th>Valor</th>
 			<th>Grupo</th>
@@ -114,8 +152,15 @@
 		<tbody>
 			<c:forEach items="${budgetItemList}" var="budgetItem">
 				<tr>
+					<td>${budgetItem.seqOrder}&nbsp;&nbsp;</td>
 					<td>${budgetItem.codItem}&nbsp;&nbsp;</td>
-					<td>${budgetItem.valItem}&nbsp;&nbsp;</td>
+					<%-- <td>${budgetItem.valItem}&nbsp;&nbsp;</td> --%>
+					<td>
+						<div class="pull-right">
+							<fmt:formatNumber value="${budgetItem.valItem}" type="number"
+								minFractionDigits="2" />
+						</div>
+					</td>
 					<td>${budgetItem.grpItem}&nbsp;&nbsp;</td>
 					<td>${budgetItem.type}&nbsp;&nbsp;</td>
 					<td>${budgetItem.dayVencto}&nbsp;&nbsp;</td>

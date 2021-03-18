@@ -18,21 +18,34 @@ public class GeneralDataBO {
 	
 	private static BudgetShortcut[] budgetShortcutList;
 
+	public static BudgetItem[] getCurrentBudgetItemListSeqOrderValid() {
+		return getCurrentBudgetItemList("validSeqOrder");
+	}
+
+	public static BudgetItem[] getCurrentBudgetItemListNoSeqOrder() {
+		return getCurrentBudgetItemList("noSeqOrder");
+	}
+
 	public static BudgetItem[] getCurrentBudgetItemList() {
+		return getCurrentBudgetItemList("");
+	}
+
+	private static BudgetItem[] getCurrentBudgetItemList(String typeSeqOrderFilder) {
 
 		String todayDate = GeneralFunctions.getTodaySqlDate();
 
 		Budget[] budgetList  = DataManager.selectList(Budget[].class, "'" + todayDate + "' BETWEEN datIni AND datEnd ");
-		
-		int idBudget = 0;
-		if (budgetList.length >= 1) {
-			idBudget = budgetList[0].getId();
-		}
 
 		QueryParameter qp = new QueryParameter();
-		qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, idBudget, QueryTypeCondition.AND);
-		qp.addOrderByOption("grpItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		qp.addOrderByOption("codItem", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		for (Budget budget : budgetList) {
+			qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, budget.getId(), QueryTypeCondition.OR);
+		}
+		if (typeSeqOrderFilder.equals("validSeqOrder")) {
+			qp.addSingleParameter("seqOrder", QueryTypeFilter.GREATER, 0, QueryTypeCondition.AND);
+		} else if (typeSeqOrderFilder.equals("noSeqOrder")) {
+			qp.addSingleParameter("seqOrder", QueryTypeFilter.EQUAL, 0, QueryTypeCondition.AND);
+		}
+		qp.addOrderByOption("seqOrder", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
 
 		return budgetItemList;
