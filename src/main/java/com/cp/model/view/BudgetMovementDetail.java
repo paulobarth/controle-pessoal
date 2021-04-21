@@ -26,9 +26,10 @@ public class BudgetMovementDetail {
 		return listValue;
 	}
 
-	public void setValue(int month, int day, Double valMovement) {
+	public void setValue(int month, int day, Double valMovement, String typeMovement) {
 		this.listValue[month].setValMovement(valMovement);
 		this.listValue[month].setDay(day);
+		this.listValue[month].setTypeMovement(typeMovement);
 	}
 
 	public int getMonth() {

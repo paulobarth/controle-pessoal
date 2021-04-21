@@ -18,8 +18,16 @@ td.None {
 	color: black;
 }
 
-td.Info {
+td.InfoDescription {
 	color: #4040bf;
+}
+
+td.InfoDespesa {
+	color: #ff8080;
+}
+
+td.InfoReceita {
+	color: #8080ff;
 }
 
 .tableFixHead {
@@ -80,12 +88,12 @@ th {
 
 	<table class="table table-hover tableFixHead">
 		<thead>
-			<th scope="col" class="col-3">Grupo</th>
-			<th scope="col" class="col-3">Item Orçamento</th>
-			<th scope="col" class="col-3"><div class="pull-right">Valor
+			<th>Grupo</th>
+			<th>Item Orçamento</th>
+			<th><div class="pull-right">Valor
 					Previsto</div></th>
 			<c:forEach items="${monthList}" var="month">
-				<th scope="col" class="col-3"><div class="pull-right">${month}&nbsp;&nbsp;</div></th>
+				<th><div class="pull-right">${month}&nbsp;&nbsp;</div></th>
 			</c:forEach>
 		</thead>
 		<tbody>
@@ -119,20 +127,22 @@ th {
 
 					<tr class="collapse multi-collapse collapseItem${budgetMov.id}">
 
-						<td colspan="3" class="Info">
+						<td colspan="3" class="InfoDescription">
 							<div>
 								<small><em>&nbsp;&nbsp;${movementDetail.description}</em></small>
 							</div>
 						</td>
 
 						<c:forEach items="${movementDetail.listValue}" var="valMovDetail">
-							<td class="Info">
+							<td class="Info${valMovDetail.typeMovement}">
 								<div class="pull-right">
 									<small class="text-muted"
 										style="display:${valMovDetail.day == 0 ? 'none' : ''}">
-										(${valMovDetail.day})</small> <em><fmt:formatNumber
+										(${valMovDetail.day})</small>
+									<em><fmt:formatNumber
 											value="${valMovDetail.valMovement}" type="number"
 											minFractionDigits="2" /></em>
+											
 								</div>
 							</td>
 						</c:forEach>

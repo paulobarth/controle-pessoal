@@ -115,13 +115,14 @@ public class BudgetMovement {
 						if (item.getListValue()[month].getValMovement().compareTo(new BigDecimal(0)) == 0) {
 							item.getListValue()[month].setValMovement(movement.getValMovement());
 							item.getListValue()[month].setDay(day);
+							item.getListValue()[month].setTypeMovement(movement.getTypeMovement());
 							return;
 						}
 					}
 				}
 			}
 
-			bmd.setValue(month, day, movement.getValMovement());
+			bmd.setValue(month, day, movement.getValMovement(), movement.getTypeMovement());
 
 			this.listMovement.add(bmd);
 		}

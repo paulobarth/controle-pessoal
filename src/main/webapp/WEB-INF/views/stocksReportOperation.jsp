@@ -258,6 +258,42 @@ tr.Info {
 			</c:forEach>
 		</table>
 
+		<table class="table table-fit">
+
+			<tr>
+				<td>Total Perda</td>
+				<td>
+					<div class="pull-right">
+						<fmt:formatNumber value="${totalLoss}"
+							type="number" minFractionDigits="2" maxFractionDigits="2" />
+				</div>
+			</tr>
+			<tr>
+				<td>Total Ganho</td>
+				<td>
+					<div class="pull-right">
+						<fmt:formatNumber value="${totalGain}"
+							type="number" minFractionDigits="2" maxFractionDigits="2" />
+				</div>
+			</tr>
+			<tr>
+				<td>Saldo/</td>
+				<td>
+					<div class="pull-right">
+						<fmt:formatNumber value="${totalDifference}"
+							type="number" minFractionDigits="2" maxFractionDigits="2" />
+				</div>
+			</tr>
+			<tr>
+				<td>Futuro</td>
+				<td>
+					<div class="pull-right">
+						<fmt:formatNumber value="${totalFuture}"
+							type="number" minFractionDigits="2" maxFractionDigits="2" />
+				</div>
+			</tr>
+
+		</table>
 	</div>
 
 	<div id="div3" hidden="true">

@@ -6,6 +6,7 @@ public class BudgetMovementValue {
 
 	private BigDecimal valMovement = new BigDecimal(0.00);
 	private int day;
+	private String typeMovement;
 
 	public BigDecimal getValMovement() {
 		return valMovement;
@@ -19,5 +20,11 @@ public class BudgetMovementValue {
 	}
 	public void setDay(int day) {
 		this.day = day;
+	}
+	public String getTypeMovement() {
+		return typeMovement;
+	}
+	public void setTypeMovement(String typeMovement) {
+		this.typeMovement = typeMovement;
 	}
 }

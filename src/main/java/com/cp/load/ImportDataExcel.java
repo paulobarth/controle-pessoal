@@ -34,13 +34,13 @@ public class ImportDataExcel {
 
 	public static String importMovementDebitSantander(String file, String origin) throws IOException {
 
-		double primeiroSaldo = 0.00;
 		double totalDebito   = 0.00;
 		double totalCredito  = 0.00;
-		double ultimoSaldo   = 0.00;		
+		double planTotalDebit = 0.00;
+		double planTotalCredit = 0.00;
 		boolean startSaving = false;
+		boolean isTotalLine = false;
 		String storeAfterLine = "Data";
-		String datFinancial;
 		Movement movement;
 
 		FileInputStream inputStream = new FileInputStream(new File(file));
@@ -61,6 +61,7 @@ public class ImportDataExcel {
 
 			movement = new Movement();
 
+			cellBlock:
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
 
@@ -73,8 +74,27 @@ public class ImportDataExcel {
 						continue lineBlock;
 					}
 					if (cell.getStringCellValue().contains("TOTAL")) {
-						break lineBlock;
+						isTotalLine = true;
+						continue cellBlock;
 					}
+				}
+				
+				if (isTotalLine) {
+					switch (cell.getColumnIndex()) {
+					case 4: //Valor Crédito
+						if (!isCellEmpty(cell)) {
+							planTotalCredit = Double.parseDouble(getCellContent(cell, NUMERIC));
+						}
+						break;
+					case 5: //Valor Débito
+						if (!isCellEmpty(cell)) {
+							planTotalDebit = Double.parseDouble(getCellContent(cell, NUMERIC));
+						}
+						break lineBlock;				
+					default:
+						break;
+					}
+					continue cellBlock;
 				}
 				
 				if (!startSaving) {
@@ -88,10 +108,6 @@ public class ImportDataExcel {
 				 	break;
 				case 1: //Descricao
 					if (cell.getStringCellValue().contains("SALDO ANTERIOR")) {
-						for (int i=0; i <= 4; i++) {
-							cell = cellIterator.next();
-						}
-						primeiroSaldo = Double.parseDouble(getCellContent(cell, NUMERIC));;
 						continue lineBlock;
 					}
 					movement.setDescription(cell.getStringCellValue());
@@ -113,16 +129,14 @@ public class ImportDataExcel {
 						}
 					}
 					break;
-				case 6:
-					ultimoSaldo = Double.parseDouble(getCellContent(cell, NUMERIC));
-					break;
 			
 			 default:
 				 break;
 				}
 			}
 
-//			System.out.println("aaa - " + movement.getDescription());
+//			System.out.print("aaa - " + movement.getDescription());
+//			System.out.println(" - " + movement.getValMovement());
 			movement.setValTotal(movement.getValMovement());
 			movement.setOrigin(origin);
 			
@@ -136,14 +150,11 @@ public class ImportDataExcel {
         
         totalCredito = GeneralFunctions.truncDouble(totalCredito, 2);
         totalDebito = GeneralFunctions.truncDouble(totalDebito, 2);
-        
-        Double total = primeiroSaldo + totalCredito - totalDebito - ultimoSaldo;
-        
-		String fim = "Finalizado - Saldo anterior: " + primeiroSaldo + " | Saldo Final: " + ultimoSaldo +
-				" | Total Debito: " + totalDebito + " | Total Credito: " + totalCredito;
-        fim += " | Conferência: " + total;
 
-        if (total < -0.02 || total > 0.02) {
+        String fim = "PLANILHA x COUNT CR e DB = " + planTotalCredit + " x " + totalCredito + "  e  " +
+        				planTotalDebit + " x " + totalDebito;
+        if ((Math.abs(planTotalCredit - totalCredito) >= 0.02) ||
+    		(Math.abs(planTotalDebit + totalDebito) >= 0.02)) {
         	fim += " | Erro";
         } else {
         	fim += " | OK";

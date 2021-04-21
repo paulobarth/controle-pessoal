@@ -256,6 +256,27 @@ public class StocksOperationController extends BaseControllerImpl {
 		request.setAttribute("listSRPO", listSRPO);
 		request.setAttribute("stockList", stocksList);
 		request.setAttribute("listActualPosition", listActualPosition);
+		
+		double totalLoss = 0.0;
+		double totalGain = 0.0;
+		double totalDifference = 0.0;
+		double totalFuture = 0.0;
+		for (StocksReportActualPosition aaa : listActualPosition) {
+			if (aaa.getResult() < 0) {
+				totalLoss += aaa.getTotalResultSell();
+			} else {
+				totalGain += aaa.getTotalResultSell();
+			}
+			if (aaa.getTotalActualResult() != null) {
+				totalFuture += aaa.getTotalActualResult();
+			}
+		}
+		totalDifference = totalGain + totalLoss;
+		
+		request.setAttribute("totalLoss", totalLoss);
+		request.setAttribute("totalGain", totalGain);
+		request.setAttribute("totalDifference", totalDifference);
+		request.setAttribute("totalFuture", totalFuture);
 
 	}
 
