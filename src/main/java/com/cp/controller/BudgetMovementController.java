@@ -17,6 +17,7 @@ import com.cp.fwk.util.GeneralFunctions;
 import com.cp.fwk.util.model.QueryParameter;
 import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
+import com.cp.model.Budget;
 import com.cp.model.BudgetItem;
 import com.cp.model.Movement;
 import com.cp.model.view.BudgetMovement;
@@ -126,6 +127,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 		}
 		
 		String typeGrpItem = "";
+		Map<Integer, String> budgetList = returnBudgetList();
 		
 		ArrayList<BudgetMovement> bM = new ArrayList<BudgetMovement>();
 		for (int pos = 0; pos < budgetItemList.length; pos++) {
@@ -134,7 +136,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 			if (!typeGrpItem.isEmpty() && !typeGrpItem.equals(budgetItem.getGrpItem()) ) {
 				BudgetMovement aaa = new BudgetMovement(11);
-				aaa.setCodItem("TOTAL GRUPO");
+				aaa.setCodItem("TOTAL " + budgetList.get(budgetItem.getIdBudget()));
 				aaa.setGrpItem(typeGrpItem);
 
 				Double totalPrevisto = 0.00;
@@ -188,6 +190,15 @@ public class BudgetMovementController extends BaseControllerImpl {
 		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
 		request.setAttribute("filterCollapsed", "true");
 		request.setAttribute("monthList", monthList);
+	}
+
+	private static Map<Integer, String> returnBudgetList() {
+		HashMap<Integer, String> budgetMap = new HashMap<Integer, String>();
+		Budget[] budgetList  = DataManager.selectList(Budget[].class);		
+		for (int pos = 0; pos < budgetList.length; pos++) {
+			budgetMap.put(budgetList[pos].getId(), budgetList[pos].getCodBudget());
+		}
+		return budgetMap;
 	}
 
 	private static String getDate(String sqlDate, String type) {

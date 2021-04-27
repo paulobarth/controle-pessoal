@@ -1,5 +1,6 @@
 <%@ include file="../common/header.jspf"%>
 <%@ include file="../common/navigation.jspf"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %>  
 
 <style>
 td.Despesa {
@@ -101,7 +102,7 @@ th {
 
 				<tr data-toggle="collapse"
 					data-target=".collapseItem${budgetMov.id}" aria-expanded="true"
-					class="${budgetMov.codItem == 'TOTAL GRUPO' ? 'table-secondary' : 'None'}">
+					class="${fn:substring(budgetMov.codItem, 0, 5) == 'TOTAL' ? 'table-secondary' : 'None'}">
 
 					<td>${budgetMov.grpItem}</td>
 					<td>${budgetMov.codItem}</td>
