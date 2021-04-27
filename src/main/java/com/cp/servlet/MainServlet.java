@@ -30,7 +30,8 @@ import com.cp.controller.stocks.StocksOperationController;
 							"/importMovement.option",	"/importMovement.import",
 							"/stocks.list",  			"/stocks.save", 			"/stocks.update",			"/stocks.delete",
 							"/stocksOperation.list",  	"/stocksOperation.save", 	"/stocksOperation.update",	"/stocksOperation.delete",
-							"/stocksOperation.reportList", "/stocksOperation.reportFilter",
+							"/stocksOperation.filter",  "/stocksOperation.reportList", "/stocksOperation.reportFilter",
+							"/stocksOperation.costs", "/stocksOperation.costsCalculation",
 							"/stocksGain.list",  		"/stocksGain.save", 		"/stocksGain.update",		"/stocksGain.delete"
 							})
 public class MainServlet extends HttpServlet {

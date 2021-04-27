@@ -31,10 +31,12 @@ public class StocksOperationController extends BaseControllerImpl {
 
 	@Override
 	public void executeCallBack() throws ServletException, IOException {
-		if (option.equals("list") || option.equals("update")) {
+		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksOperation.jsp").forward(request, response);
 		} else if (option.startsWith("report")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksReportOperation.jsp").forward(request, response);
+		} else if (option.equals("costs")) {
+			request.getRequestDispatcher("/WEB-INF/views/stocksOperationCosts.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/stocksOperation.list");
 		}		
@@ -49,20 +51,21 @@ public class StocksOperationController extends BaseControllerImpl {
 		case "reportFilter":
 			super.filter();
 			break;
+		case "costs":
+			costsList();
+			break;
+		case "costsCalculation":
+			applyCostsToStocksOperations();
+			break;
 
 		default:
 			break;
 		}
 	}
-	
+
 	@Override
 	protected void list() {
-		QueryParameter qp = new QueryParameter();
-		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
-
-		request.setAttribute("stocksOperationList", stocksOperationList);
+		applyFilterListMovement("", "");
 	}
 	
 	@Override
@@ -107,6 +110,31 @@ public class StocksOperationController extends BaseControllerImpl {
 
 	@Override
 	protected void applyFilterMovement() {
+		if (option.startsWith("report")) {
+			applyReportFilterMovement();
+		} else {
+			applyFilterListMovement(GeneralFunctions.stringDatetoSql(request.getParameter("filterDatOperationIni")),
+					GeneralFunctions.stringDatetoSql(request.getParameter("filterDatOperationEnd")));
+		}
+	}
+	
+	private void applyFilterListMovement(String datIni, String datEnd) {
+		QueryParameter qp = new QueryParameter();
+		if (!"".equals(datIni) || !"".equals(datEnd)) {
+			if ("".equals(datEnd)) {
+				qp.addSingleParameter("datOperation", QueryTypeFilter.EQUAL, datIni,
+						QueryTypeCondition.AND);
+			} else {
+				qp.addBetweenParameter("datOperation", new String[] {datIni, datEnd}, QueryTypeCondition.AND);
+			}
+		}
+		
+		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		request.setAttribute("stocksOperationList", DataManager.selectList(StocksOperation[].class, qp));
+	}
+
+	private void applyReportFilterMovement() {
 		String lastTypeOperation = "";
 		boolean bRecalcLastMedPrice = false;
 		Double lastMedPrice = 0.00;
@@ -432,4 +460,51 @@ public class StocksOperationController extends BaseControllerImpl {
 
 		sRPO.setStocksList(stockOper);
 	}
+
+	private void costsList() {
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("valCost", QueryTypeFilter.EQUAL, 0, QueryTypeCondition.AND);
+		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
+
+		request.setAttribute("stocksOperationList", stocksOperationList);
+	}
+
+	private void applyCostsToStocksOperations() {
+		double costValue = 0.0;
+		try {
+			costValue = Double.parseDouble(request.getParameter("taxa1")) +
+						Double.parseDouble(request.getParameter("taxa2")) +
+						Double.parseDouble(request.getParameter("taxa3"));
+		} catch (Exception e) {
+			return;
+		}
+
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("datOperation", QueryTypeFilter.EQUAL, GeneralFunctions.stringDatetoSql(request.getParameter("datOperation")),
+				QueryTypeCondition.AND);
+		qp.addSingleParameter("valCost", QueryTypeFilter.EQUAL, 0, QueryTypeCondition.AND);
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
+		
+		double totalStocksValue = getTotalStocksValue(stocksOperationList);
+		if (totalStocksValue == 0) {
+			return;
+		}
+
+		double valCost = 0.0;
+		for (StocksOperation stock : stocksOperationList) {
+			valCost = GeneralFunctions.truncDouble((stock.getValStock() / totalStocksValue) * costValue, 2);
+			stock.setValCost(valCost);
+			DataManager.updateId(StocksOperation.class, stock);
+		}
+	}
+
+	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
+		double total = 0.0;
+		for (StocksOperation stock : stocksOperationList) {
+			total += stock.getValStock();
+		}
+		return total;
+	}
+
 }

@@ -4,6 +4,38 @@
 <div class="container">
 
 	<%@ include file="../common/register.jspf"%>
+
+	<div class="row">
+		<div class="col">
+			<div class="collapse multi-collapse" id="collapseFilterRegister">
+				<div class="card card-body">
+
+					<form action="/controle-pessoal/stocksOperation.filter" method="post">
+
+						<div class="col-xs-2">
+							<label for="ex2">Data Operação Inicial</label> <input class="form-control"
+								id="datepickerfilterini" name="filterDatOperationIni"
+								type="text" value="${filterDatOperationIni}">
+						</div>
+						<div class="col-xs-2">
+							<label for="ex2">Data Operação Inicial</label> <input class="form-control"
+								id="datepickerfilterend" name="filterDatOperationEnd"
+								type="text" value="${filterDatOperationEnd}">
+						</div>
+						<div class="form-group col">
+							<input class="btn btn-success" type="submit" value="Filtrar">
+							<input class="btn btn-warning" type="reset">
+						</div>
+					</form>
+
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<a class="btn btn-sm" href="/controle-pessoal/stocksOperation.costs">
+		Ratear Custos</a>
+
 	<div class="row">
 		<div class="col">
 			<div class="collapse multi-collapse" id="collapseEditRegister">
@@ -117,6 +149,8 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
 	$(function() {
+		$("#datepickerfilterini").datepicker();
+		$("#datepickerfilterend").datepicker();
 		$("#datepickeroper").datepicker();
 	});
 	function bodyLoadFunction() {
