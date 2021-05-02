@@ -128,9 +128,7 @@ public class MovementController extends BaseControllerImpl {
 		}
 		request.setAttribute("budgetItemList", budgetItemList);
 
-		String[] originList = { "Conta Corrente - Santander", "Cartão Crédito - Santander",
-				"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
-		request.setAttribute("originList", originList);
+		request.setAttribute("originList", GeneralFunctions.ORIGIN_LIST);
 	}
 
 	@Override

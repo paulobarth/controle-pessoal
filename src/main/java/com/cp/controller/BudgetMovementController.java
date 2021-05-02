@@ -31,19 +31,34 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 	@Override
 	protected void list() {
-		selectByPeriod(request, "2021-01-01", "2021-12-31");
+		applyFilterMovement();
 		super.list();
 	}
 	
+//	@Override
+//	protected void filter() {
+//		selectByPeriod(request, GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementIni")),
+//				GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementEnd"))
+//				);
+//	}
+
 	@Override
-	protected void filter() {
+	protected void applyFilterMovement() {
 		selectByPeriod(request, GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementIni")),
 				GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementEnd"))
 				);
+		request.setAttribute("originList", GeneralFunctions.ORIGIN_LIST);
 	}
 
 	private static void selectByPeriod(HttpServletRequest request, String sqlDateIni, String sqlDateEnd) {
 
+		if ("".equals(sqlDateIni)) {
+			sqlDateIni = "2021-01-01";
+		}
+		if ("".equals(sqlDateEnd)) {
+			sqlDateEnd = "2021-12-31";
+		}
+		
 		List<String> monthList = new ArrayList<String>();
 		int month;
 
@@ -96,6 +111,11 @@ public class BudgetMovementController extends BaseControllerImpl {
 				new String[] {datIni, datEnd},
 				QueryTypeCondition.AND);
 		qpMovement.addOrderByOption("description", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+
+		String filterOrigin = request.getParameter("filterOrigin");
+		if (filterOrigin != null && !"".equals(filterOrigin)) {
+			qpMovement.addSingleParameter("origin", QueryTypeFilter.EQUAL, filterOrigin, QueryTypeCondition.AND);
+		}
 		
 		Movement[] movementList = DataManager.selectList(Movement[].class, qpMovement);
 
@@ -186,9 +206,9 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 		request.setAttribute("movementList", movementList);
 		request.setAttribute("budgetMovList", bM);
-		request.setAttribute("filterDatMovementIni", GeneralFunctions.sqlDateToString(sqlDateIni));
-		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
-		request.setAttribute("filterCollapsed", "true");
+//		request.setAttribute("filterDatMovementIni", GeneralFunctions.sqlDateToString(sqlDateIni));
+//		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
+//		request.setAttribute("filterCollapsed", "true");
 		request.setAttribute("monthList", monthList);
 	}
 

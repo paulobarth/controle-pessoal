@@ -77,6 +77,18 @@ th {
 								id="filterDatMovementEnd" name="filterDatMovementEnd"
 								type="text" value="${filterDatMovementEnd}">
 						</div>
+						<div class="col-xs-3">
+							<label for="ex3">Origem</label> <select class="form-control"
+								name="filterOrigin">
+								<option value=""
+									${filterOrigin == '' ? 'selected="selected"' : ''}></option>
+								<c:forEach items="${originList}" var="origin">
+									<option value="${origin}"
+										${origin == filterOrigin ? 'selected="selected"' : ''}>
+										${origin}</option>
+								</c:forEach>
+							</select>
+						</div>
 						<br> <input class="btn btn-success" type="submit"
 							value="Filtrar">
 					</form>

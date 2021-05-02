@@ -8,7 +8,8 @@ public class GeneralFunctions {
 
 	private static boolean showLog = false;
 	private static String[] TEXTMONTHLIST = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
-
+	public static String[] ORIGIN_LIST = new String[]{ "Conta Corrente - Santander", "Cartão Crédito - Santander",
+			"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
 
 	public static String stringDatetoSql(String date) {
 		if (date == null) {
