@@ -301,13 +301,11 @@ tr.Info {
 		<table class="table table-fit table-hover">
 
 			<thead class="table-light">
-				<tr>
-					<th>Período</th>
-					<th>Valor das Vendas</th>
-				</tr>
-			</thead>
+				<th scope="col">Período</th>
+				<th scope="col">Valor das Vendas</th>
+			</thead>  
 			<tbody>
-				<c:forEach items="${listMonthSales}" var="monthSales">r
+				<c:forEach items="${listMonthSales}" var="monthSales">
 					<tr class="${monthSales.exceeded ? 'table-danger' : ''}"
 						data-toggle="collapse"
 						data-target=".collapseItem${monthSales.period}"
@@ -321,7 +319,6 @@ tr.Info {
 							</div>
 						</td>
 					</tr>
-
 
 					<c:forEach items="${monthSales.salesPerStocks}"
 						var="salesPerStocks">
