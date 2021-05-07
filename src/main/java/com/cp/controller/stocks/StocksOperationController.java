@@ -493,7 +493,7 @@ public class StocksOperationController extends BaseControllerImpl {
 
 		double valCost = 0.0;
 		for (StocksOperation stock : stocksOperationList) {
-			valCost = GeneralFunctions.truncDouble((stock.getValStock() / totalStocksValue) * costValue, 2);
+			valCost = GeneralFunctions.truncDouble(((stock.getQuantity() * stock.getValStock()) / totalStocksValue) * costValue, 2);
 			stock.setValCost(valCost);
 			DataManager.updateId(StocksOperation.class, stock);
 		}
@@ -502,9 +502,8 @@ public class StocksOperationController extends BaseControllerImpl {
 	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
 		double total = 0.0;
 		for (StocksOperation stock : stocksOperationList) {
-			total += stock.getValStock();
+			total += stock.getQuantity() * stock.getValStock();
 		}
 		return total;
 	}
-
 }
