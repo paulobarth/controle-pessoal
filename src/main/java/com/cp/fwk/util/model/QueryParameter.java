@@ -15,6 +15,13 @@ public class QueryParameter {
 		addSingleParameter(field, filter, String.valueOf(content), condition);
 	}
 
+	public void addSingleNotEmptyParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
+		if (content != null && !content.isEmpty()) {
+			String[] contents = {content};
+			addQueryOption(field, filter, contents, condition);
+		}
+	}
+
 	public void addSingleParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
 		String[] contents = {content};
 		addQueryOption(field, filter, contents, condition);

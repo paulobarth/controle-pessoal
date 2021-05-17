@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,6 +28,7 @@ import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
 import com.cp.rest.WebService;
 import com.cp.rest.WebService.Dados;
+import com.cp.rest.WebService.Results;
 
 public class StocksOperationController extends BaseControllerImpl {
 
@@ -147,6 +150,7 @@ public class StocksOperationController extends BaseControllerImpl {
 		List<StocksReportActualPosition> listActualPosition = new ArrayList<StocksReportActualPosition>();
 
 		String filterStockItem = request.getParameter("filterStockItem");
+		String filterCodPortfolio = request.getParameter("filterCodPortfolio");
 		String filterYearOperation = request.getParameter("filterYearOperation");
 		boolean filterShowOnlyOpened = Boolean.parseBoolean(request.getParameter("filterShowOnlyOpened"));
 		boolean filterStockPrice = Boolean.parseBoolean(request.getParameter("filterStockPrice"));
@@ -162,7 +166,7 @@ public class StocksOperationController extends BaseControllerImpl {
 
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
 
-		Set<String> stocksList = getListOfStocks(stocksOperationList);
+		Set<String> stocksList = getListOfStocks(stocksOperationList, filterStockItem, filterCodPortfolio);
 
 		if (filterStockPrice) {
 			stocksPrices = updateStockPrice(stocksList);
@@ -430,12 +434,25 @@ public class StocksOperationController extends BaseControllerImpl {
 		return monthSales;
 	}
 
-	private static Set<String> getListOfStocks(StocksOperation[] stocksOperationList) {
-
-//		Map<String, String> list = new HashMap<String, String>();
+	private static Set<String> getListOfStocks(StocksOperation[] stocksOperationList, String filterStockItem, String filterCodPortfolio) {
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
+		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
+		Stocks[] stocksList = DataManager.selectList(Stocks[].class, qp);
 		Set<String> list = new TreeSet<>();
 
+		boolean found;
 		for (StocksOperation teste : stocksOperationList) {
+			found = false;
+			for (Stocks stock : stocksList) {
+				if (teste.getCodStock().equals(stock.getCodStock())) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				continue;
+			}
 			list.add(teste.getCodStock());
 		}
 

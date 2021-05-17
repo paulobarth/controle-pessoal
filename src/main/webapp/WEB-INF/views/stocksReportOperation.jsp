@@ -50,6 +50,21 @@ tr.Info {
 								</option>
 							</select>
 						</div>
+						<div class="col-xs-2">
+							<label for="ex2">Carteira</label> <select
+								class="form-control" name="filterCodPortfolio"
+								i="filterCodPortfolio">
+								<option value=""
+									${filterCodPortfolio == '' ? 'selected="selected"' : ''}>
+								</option>
+								<option value="Rock Trade"
+									${filterCodPortfolio == 'Rock Trade' ? 'selected="selected"' : ''}>
+									Rock Trade</option>
+								<option value="Particular"
+									${filterCodPortfolio == 'Particular' ? 'selected="selected"' : ''}>
+									Particular</option>
+							</select>
+						</div>
 						<div class="col-xs-3">
 							<label for="ex3">Atualizar Preços</label> <select
 								class="form-control" name="filterStockPrice"
@@ -153,7 +168,7 @@ tr.Info {
 									<fmt:formatNumber value="${stockOper.medPrice}" type="number"
 										minFractionDigits="4" />
 								</div></td>
-							<td><div class="pull-right">
+							<td><div class="pull-right" color="#FF0000">
 									<fmt:formatNumber value="${stockOper.resultSell}" type="number"
 										minFractionDigits="2" />
 								</div></td>
