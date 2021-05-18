@@ -488,6 +488,17 @@ public class StocksOperationController extends BaseControllerImpl {
 	}
 
 	private void applyCostsToStocksOperations() {
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("datOperation", QueryTypeFilter.EQUAL, GeneralFunctions.stringDatetoSql(request.getParameter("datOperation")),
+				QueryTypeCondition.AND);
+		qp.addSingleParameter("valCost", QueryTypeFilter.EQUAL, 0, QueryTypeCondition.AND);
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
+		
+		applyGeneralCost(stocksOperationList);
+		applyIRRFCost(stocksOperationList);
+	}
+
+	private void applyGeneralCost(StocksOperation[] stocksOperationList) {
 		double costValue = 0.0;
 		try {
 			costValue = Double.parseDouble(request.getParameter("taxa1")) +
@@ -496,26 +507,70 @@ public class StocksOperationController extends BaseControllerImpl {
 		} catch (Exception e) {
 			return;
 		}
+		if (costValue == 0) {
+			return;
+		}		
+		applyCalculationCost(stocksOperationList, costValue);
+	}
 
-		QueryParameter qp = new QueryParameter();
-		qp.addSingleParameter("datOperation", QueryTypeFilter.EQUAL, GeneralFunctions.stringDatetoSql(request.getParameter("datOperation")),
-				QueryTypeCondition.AND);
-		qp.addSingleParameter("valCost", QueryTypeFilter.EQUAL, 0, QueryTypeCondition.AND);
-		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
-		
+	private void applyIRRFCost(StocksOperation[] stocksOperationList) {
+		double costValue = 0.0;
+		try {
+			costValue = Double.parseDouble(request.getParameter("taxaIRRF"));
+		} catch (Exception e) {
+			return;
+		}
+		if (costValue == 0) {
+			return;
+		}
+		int i = 0;
+		for (StocksOperation stock : stocksOperationList) {
+			if (stock.getTypeOperation().equals("Venda")) {
+				i++;
+			}
+		}
+		StocksOperation[] salesStocksOperationList = new StocksOperation[i];
+		i = 0;
+		for (StocksOperation stock : stocksOperationList) {
+			if (stock.getTypeOperation().equals("Venda")) {
+				salesStocksOperationList[i++] = stock;
+			}
+		}
+		applyCalculationCost(salesStocksOperationList, costValue);
+	}
+
+	private void applyCalculationCost(StocksOperation[] stocksOperationList, double costValue) {
 		double totalStocksValue = getTotalStocksValue(stocksOperationList);
 		if (totalStocksValue == 0) {
 			return;
 		}
 
+		double calculatedTotalCost = 0.0;
 		double valCost = 0.0;
+		double topVal = 0.0;
+		int pos = 0;
+		int i = 0;
+		
 		for (StocksOperation stock : stocksOperationList) {
 			valCost = GeneralFunctions.truncDouble(((stock.getQuantity() * stock.getValStock()) / totalStocksValue) * costValue, 2);
-			stock.setValCost(valCost);
+			stock.setValCost(stock.getValCost() + valCost);
 			DataManager.updateId(StocksOperation.class, stock);
-		}
-	}
 
+			calculatedTotalCost += valCost;
+			if (topVal < (stock.getQuantity() * stock.getValStock())) {
+				topVal = stock.getQuantity() * stock.getValStock();
+				pos = i;
+			}
+			i++;
+		}
+		
+		if (calculatedTotalCost != costValue) {
+			StocksOperation stock = stocksOperationList[pos];
+			stock.setValCost(stock.getValCost() + costValue - calculatedTotalCost);
+			DataManager.updateId(StocksOperation.class, stock);
+		}		
+	}
+	
 	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
 		double total = 0.0;
 		for (StocksOperation stock : stocksOperationList) {

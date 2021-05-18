@@ -83,6 +83,17 @@
 				</div>
 			</div>
 		</div>
+		<br>
+		<div class="row">
+
+			<div class="col">
+
+				<div class="col-xs-3">
+					<label for="ex1">IRRF (Apenas para Venda)</label> <input class="form-control"
+						name="taxaIRRF" type="number" step="0.01" value="0">
+				</div>
+			</div>
+		</div>
 
 		<br> <input class="btn btn-success" type="submit"
 			value="Aplicar">
