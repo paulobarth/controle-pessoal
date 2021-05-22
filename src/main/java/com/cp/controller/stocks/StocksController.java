@@ -75,6 +75,6 @@ public class StocksController extends BaseControllerImpl {
 	
 	@Override
 	protected void delete() {
-		DataManager.deleteId(StocksGain.class, Integer.parseInt(request.getParameter("id")));
+		DataManager.deleteId(Stocks.class, Integer.parseInt(request.getParameter("id")));
 	}
 }

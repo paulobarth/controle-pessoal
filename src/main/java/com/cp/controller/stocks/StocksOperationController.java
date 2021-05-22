@@ -145,7 +145,9 @@ public class StocksOperationController extends BaseControllerImpl {
 		Double acumMedPrice = 0.00;
 		Stocks[] stocksPrices;
 		QueryParameter qp = new QueryParameter();
-
+		Stocks[] currentStocks;
+		boolean showAllStocks = true;
+		
 		List<StocksReportOperation> listSRPO = new ArrayList<StocksReportOperation>();
 		List<StocksReportActualPosition> listActualPosition = new ArrayList<StocksReportActualPosition>();
 
@@ -154,7 +156,16 @@ public class StocksOperationController extends BaseControllerImpl {
 		String filterYearOperation = request.getParameter("filterYearOperation");
 		boolean filterShowOnlyOpened = Boolean.parseBoolean(request.getParameter("filterShowOnlyOpened"));
 		boolean filterStockPrice = Boolean.parseBoolean(request.getParameter("filterStockPrice"));
+		
+		showAllStocks = filterStockItem == null && filterCodPortfolio == null && filterYearOperation == null;
 
+		System.out.println(showAllStocks);
+
+		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
+		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
+		currentStocks = DataManager.selectList(Stocks[].class, qp);
+		
+		qp.clearQuery();
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		if (filterYearOperation != null && !filterYearOperation.isEmpty()) {
 			qp.addBetweenParameter("datOperation",
@@ -166,10 +177,10 @@ public class StocksOperationController extends BaseControllerImpl {
 
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
 
-		Set<String> stocksList = getListOfStocks(stocksOperationList, filterStockItem, filterCodPortfolio);
+		Set<String> stocksList = getListOfStocksFromStocksOperation(stocksOperationList, currentStocks, showAllStocks);
 
 		if (filterStockPrice) {
-			stocksPrices = updateStockPrice(stocksList);
+			stocksPrices = updateStockPrice(stocksList, currentStocks);
 		} else {
 			stocksPrices = DataManager.selectList(Stocks[].class);
 		}
@@ -337,12 +348,12 @@ public class StocksOperationController extends BaseControllerImpl {
 		listActualPosition.add(actualPosition);
 	}
 
-	private static Stocks[] updateStockPrice(Set<String> stocksList) {
+	private static Stocks[] updateStockPrice(Set<String> stocksList, Stocks[] currentStocks) {
 
 		Double actualPrice = 0.0;
 		List<Stocks> stockPriceList = new ArrayList<Stocks>();
-
-		DataManager.deleteAll(Stocks.class);
+		Stocks newStock;
+		boolean isNewStock;
 		
 		for (String codStock : stocksList) {
 
@@ -355,23 +366,33 @@ public class StocksOperationController extends BaseControllerImpl {
 			if (actualPrice == 0) {
 				continue;
 			}
-			
-			
-			
-			Stocks newStock = new Stocks();
-
-			newStock.setCodStock(codStock);
+			newStock = null;
+			isNewStock = true;
+			for (Stocks stock : currentStocks) {
+				if (stock.getCodStock().equals(codStock)) {
+					newStock = stock;
+					isNewStock = false;
+					break;
+				}
+			}
+			if (newStock == null) {
+				newStock = new Stocks();
+				newStock.setCodStock(codStock);
+			}
 			newStock.setName(stockWSData.getResults().getStock().getName());
 			newStock.setCompanyName(stockWSData.getResults().getStock().getCompany_name());
 			newStock.setActualPrice(actualPrice);
-
 			newStock.setUpdateAt(stockWSData.getResults().getStock().getUpdated_at());
 
 			stockPriceList.add(newStock);
 
-			List<Stocks> inserStockList = new ArrayList<Stocks>();
-			inserStockList.add(newStock);
-			DataManager.insert(Stocks.class, inserStockList);
+			if (isNewStock) {
+				List<Stocks> inserStockList = new ArrayList<Stocks>();
+				inserStockList.add(newStock);
+				DataManager.insert(Stocks.class, inserStockList);
+			} else {
+				DataManager.updateId(Stocks.class, newStock);
+			}
 		}
 
 		Stocks[] stocksArray = new Stocks[stockPriceList.size()];
@@ -434,28 +455,25 @@ public class StocksOperationController extends BaseControllerImpl {
 		return monthSales;
 	}
 
-	private static Set<String> getListOfStocks(StocksOperation[] stocksOperationList, String filterStockItem, String filterCodPortfolio) {
-		QueryParameter qp = new QueryParameter();
-		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
-		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
-		Stocks[] stocksList = DataManager.selectList(Stocks[].class, qp);
+	private static Set<String> getListOfStocksFromStocksOperation(StocksOperation[] stocksOperationList, Stocks[] stocksList, boolean showAllStocks) {
 		Set<String> list = new TreeSet<>();
 
 		boolean found;
 		for (StocksOperation teste : stocksOperationList) {
 			found = false;
-			for (Stocks stock : stocksList) {
-				if (teste.getCodStock().equals(stock.getCodStock())) {
-					found = true;
-					break;
+			if (!showAllStocks) {
+				for (Stocks stock : stocksList) {
+					if (teste.getCodStock().equals(stock.getCodStock())) {
+						found = true;
+						break;
+					}
 				}
-			}
-			if (!found) {
-				continue;
+				if (!found) {
+					continue;
+				}
 			}
 			list.add(teste.getCodStock());
 		}
-
 		return list;
 	}
 
