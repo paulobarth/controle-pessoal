@@ -159,8 +159,6 @@ public class StocksOperationController extends BaseControllerImpl {
 		
 		showAllStocks = filterStockItem == null && filterCodPortfolio == null && filterYearOperation == null;
 
-		System.out.println(showAllStocks);
-
 		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
 		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
 		currentStocks = DataManager.selectList(Stocks[].class, qp);
@@ -208,37 +206,36 @@ public class StocksOperationController extends BaseControllerImpl {
 
 			stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
 
-			for (StocksOperation teste : stocksOperationList) {
+			for (StocksOperation stockOperation : stocksOperationList) {
 
-				if (!lastTypeOperation.isEmpty() && !lastTypeOperation.equals(teste.getTypeOperation())) {
+				if (!lastTypeOperation.isEmpty() && !lastTypeOperation.equals(stockOperation.getTypeOperation())) {
 
-					addResultLine(sRPO, teste.getCodStock(), acumQuantity, lastMedPrice);
+					addResultLine(sRPO, stockOperation.getCodStock(), acumQuantity, lastMedPrice);
 				}
 
 				StocksReportOperation.StocksOper stockOper = sRPO.new StocksOper();
 
-				stockOper.setCodStock(teste.getCodStock());
-				stockOper.setTypeOperation(teste.getTypeOperation());
-				stockOper.setDatOperation(teste.getDatOperation());
-				stockOper.setQuantity(teste.getQuantity());
-				stockOper.setValCost(teste.getValCost());
-				stockOper.setValStock(teste.getValStock());
+				stockOper.setCodStock(stockOperation.getCodStock());
+				stockOper.setTypeOperation(stockOperation.getTypeOperation());
+				stockOper.setDatOperation(stockOperation.getDatOperation());
+				stockOper.setQuantity(stockOperation.getQuantity());
+				stockOper.setValCost(stockOperation.getValCost());
+				stockOper.setValStock(stockOperation.getValStock());
 
 //				Total da operação sem custo
-				stockOper.setTotalOperation(teste.getQuantity() * teste.getValStock());
+				stockOper.setTotalOperation(stockOperation.getQuantity() * stockOperation.getValStock());
 
 //				Total da operação mais custo
-				if (teste.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
-					stockOper.setTotalOperCost(stockOper.getTotalOperation() + teste.getValCost());
+				if (stockOperation.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
+					stockOper.setTotalOperCost(stockOper.getTotalOperation() + stockOperation.getValCost());
 				} else {
-					stockOper.setTotalOperCost(stockOper.getTotalOperation() - teste.getValCost());
-
-					stockOper.setResultSell(stockOper.getTotalOperCost() - (lastMedPrice * teste.getQuantity()));
+					stockOper.setTotalOperCost(stockOper.getTotalOperation() - stockOperation.getValCost());
+					stockOper.setResultSell(stockOper.getTotalOperCost() - (lastMedPrice * stockOperation.getQuantity()));
 				}
 
 //				Preço unitário dividido
-				if (teste.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
-					stockOper.setMedPrice(stockOper.getTotalOperCost() / teste.getQuantity());
+				if (stockOperation.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
+					stockOper.setMedPrice(stockOper.getTotalOperCost() / stockOperation.getQuantity());
 				} else {
 					stockOper.setMedPrice(lastMedPrice);
 				}
@@ -246,12 +243,12 @@ public class StocksOperationController extends BaseControllerImpl {
 				sRPO.setStocksList(stockOper);
 
 //				Acumula e guarda dados para a próxima linha
-				if (teste.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
+				if (stockOperation.getTypeOperation().equals(generalInfo.STOCK_BUY)) {
 
-					acumQuantity += teste.getQuantity();
+					acumQuantity += stockOperation.getQuantity();
 
 					if (bRecalcLastMedPrice) {
-						lastMedPrice = ((lastMedPrice * (acumQuantity - teste.getQuantity()))
+						lastMedPrice = ((lastMedPrice * (acumQuantity - stockOperation.getQuantity()))
 								+ stockOper.getTotalOperCost()) / acumQuantity;
 
 						acumMedPrice = lastMedPrice * acumQuantity;
@@ -268,11 +265,11 @@ public class StocksOperationController extends BaseControllerImpl {
 
 				} else {
 					bRecalcLastMedPrice = true;
-					acumQuantity -= teste.getQuantity();
+					acumQuantity -= stockOperation.getQuantity();
 					acumMedPrice -= stockOper.getTotalOperCost();
 				}
 
-				lastTypeOperation = teste.getTypeOperation();
+				lastTypeOperation = stockOperation.getTypeOperation();
 			}
 
 			if (sRPO.getStocksList().size() > 0) {
