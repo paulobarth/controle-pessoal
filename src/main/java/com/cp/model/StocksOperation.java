@@ -11,6 +11,10 @@ public class StocksOperation {
 	private int quantity;
 	private Double valStock;
 	private Double valCost;
+	private Double valResultSell;
+	private Double valIRLossConsumed;
+	private String monthIRLossConsumed;
+	private String operationGainIRCalculated; // S Sim  N Não
 
 	public int getId() {
 		return id;
@@ -71,5 +75,29 @@ public class StocksOperation {
 	}
 	public void setCodStock(String codStock) {
 		this.codStock = codStock;
+	}
+	public Double getValResultSell() {
+		return valResultSell;
+	}
+	public void setValResultSell(Double valResultSell) {
+		this.valResultSell = valResultSell;
+	}
+	public Double getValIRLossConsumed() {
+		return valIRLossConsumed;
+	}
+	public void setValIRLossConsumed(Double valIRLossConsumed) {
+		this.valIRLossConsumed = valIRLossConsumed;
+	}
+	public String getMonthIRLossConsumed() {
+		return monthIRLossConsumed;
+	}
+	public void setMonthIRLossConsumed(String monthIRLossConsumed) {
+		this.monthIRLossConsumed = monthIRLossConsumed;
+	}
+	public String getOperationGainIRCalculated() {
+		return operationGainIRCalculated;
+	}
+	public void setOperationGainIRCalculated(String operationGainIRCalculated) {
+		this.operationGainIRCalculated = operationGainIRCalculated;
 	}
 }

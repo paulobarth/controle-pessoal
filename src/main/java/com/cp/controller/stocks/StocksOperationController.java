@@ -230,7 +230,13 @@ public class StocksOperationController extends BaseControllerImpl {
 					stockOper.setTotalOperCost(stockOper.getTotalOperation() + stockOperation.getValCost());
 				} else {
 					stockOper.setTotalOperCost(stockOper.getTotalOperation() - stockOperation.getValCost());
-					stockOper.setResultSell(stockOper.getTotalOperCost() - (lastMedPrice * stockOperation.getQuantity()));
+//					ResultSell lucro ou prejuízo
+//					TODO: gravar o preço médio e o valor do lucro ou prejuízo no cadastro da operação
+					if (stockOperation.getValResultSell() == 0) {
+						stockOperation.setValResultSell(GeneralFunctions.round(stockOper.getTotalOperCost() - (lastMedPrice * stockOperation.getQuantity()), 2));
+						updateStockOperationResultSell(stockOperation);
+					}
+					stockOper.setResultSell(stockOperation.getValResultSell());
 				}
 
 //				Preço unitário dividido
@@ -318,6 +324,18 @@ public class StocksOperationController extends BaseControllerImpl {
 		request.setAttribute("totalDifference", totalDifference);
 		request.setAttribute("totalFuture", totalFuture);
 
+	}
+
+	private void updateStockOperationResultSell(StocksOperation stockOperation) {
+		DataManager.updateId(StocksOperation.class, stockOperation);
+		System.out.println("Result Sell Update: " +
+				stockOperation.getCodStock() + "  |  " +
+				stockOperation.getDatOperation() + "  |  " +
+				stockOperation.getTypeOperation() + "  |  " +
+				stockOperation.getValResultSell() + "  |  "
+				);
+		
+		
 	}
 
 	private static void addActualPosition(List<StocksReportActualPosition> listActualPosition,

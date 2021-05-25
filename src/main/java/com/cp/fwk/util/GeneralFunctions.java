@@ -1,7 +1,9 @@
 package com.cp.fwk.util;
 
+import java.math.RoundingMode;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 public class GeneralFunctions {
@@ -114,5 +116,11 @@ public class GeneralFunctions {
 
 	public static String getDayOfSqlDate(String datOperation) {
 		return datOperation.split("-")[2];
+	}
+
+	public static Double round(double d, int i) {
+		DecimalFormat df = new DecimalFormat("0.00");
+		df.setRoundingMode(RoundingMode.HALF_UP);
+		return Double.valueOf(df.format(d));
 	}
 }
