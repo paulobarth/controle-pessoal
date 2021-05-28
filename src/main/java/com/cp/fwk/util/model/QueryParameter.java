@@ -10,9 +10,18 @@ import com.cp.fwk.util.query.QueryTypeFilter;
 public class QueryParameter {
 	
 	List<QueryOption> queryOption = new ArrayList<QueryOption>();
-	
+
 	public void addSingleParameter (String field, QueryTypeFilter filter, int content, QueryTypeCondition condition) {
 		addSingleParameter(field, filter, String.valueOf(content), condition);
+	}
+
+	public void addSingleParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
+		String[] contents = {content};
+		addQueryOption(field, filter, contents, condition);
+	}
+
+	public void addFieldParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
+		addQueryOption(field, filter, new String[] {content, "field"}, condition);
 	}
 
 	public void addSingleNotEmptyParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
@@ -20,11 +29,6 @@ public class QueryParameter {
 			String[] contents = {content};
 			addQueryOption(field, filter, contents, condition);
 		}
-	}
-
-	public void addSingleParameter (String field, QueryTypeFilter filter, String content, QueryTypeCondition condition) {
-		String[] contents = {content};
-		addQueryOption(field, filter, contents, condition);
 	}
 	
 	public void addBetweenParameter (String field, String[] contents, QueryTypeCondition condition) {

@@ -56,11 +56,12 @@ public class StocksReportMonthSale {
 		this.salesPerStocks = salesPerStocks;
 	}
 
-	public void addStockSale(String codStock, String datOperation, Double valSale) {
+	public void addStockSale(String codStock, String datOperation, Double valSale, Double resultSell) {
 		SalesPerStocks sale = new SalesPerStocks();
 		sale.setCodStock(codStock);
 		sale.setDatOperation(datOperation);
 		sale.setValue(valSale);
+		sale.setResultSell(resultSell);
 		this.getSalesPerStocks().add(sale);
 	}
 
@@ -69,6 +70,7 @@ public class StocksReportMonthSale {
 		private String codStock;
 		private String datOperation;
 		private Double value;
+		private Double resultSell;
 		private String dayOperation;
 
 		public String getCodStock() {
@@ -98,6 +100,14 @@ public class StocksReportMonthSale {
 
 		public String getDayOperation() {
 			return dayOperation;
+		}
+
+		public Double getResultSell() {
+			return resultSell;
+		}
+
+		public void setResultSell(Double resultSell) {
+			this.resultSell = resultSell;
 		}
 	}
 }

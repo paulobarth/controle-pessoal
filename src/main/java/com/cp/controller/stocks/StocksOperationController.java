@@ -23,6 +23,7 @@ import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Stocks;
 import com.cp.model.StocksOperation;
+import com.cp.model.StocksTax;
 import com.cp.model.view.StocksReportActualPosition;
 import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
@@ -36,7 +37,7 @@ public class StocksOperationController extends BaseControllerImpl {
 	public void executeCallBack() throws ServletException, IOException {
 		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksOperation.jsp").forward(request, response);
-		} else if (option.startsWith("report")) {
+		} else if (option.startsWith("report") || option.equals("taxCalculation")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksReportOperation.jsp").forward(request, response);
 		} else if (option.equals("costs")) {
 			request.getRequestDispatcher("/WEB-INF/views/stocksOperationCosts.jsp").forward(request, response);
@@ -59,6 +60,9 @@ public class StocksOperationController extends BaseControllerImpl {
 			break;
 		case "costsCalculation":
 			applyCostsToStocksOperations();
+			break;
+		case "taxCalculation":
+			applyTaxToStocksSell();
 			break;
 
 		default:
@@ -464,7 +468,7 @@ public class StocksOperationController extends BaseControllerImpl {
 			} else {
 				sale.sumValue(totalAmount);
 			}
-			sale.addStockSale(stocksOperation.getCodStock(), stocksOperation.getDatOperation(), totalAmount);
+			sale.addStockSale(stocksOperation.getCodStock(), stocksOperation.getDatOperation(), totalAmount, stocksOperation.getValResultSell());
 		}
 
 		return monthSales;
@@ -603,7 +607,132 @@ public class StocksOperationController extends BaseControllerImpl {
 			DataManager.updateId(StocksOperation.class, stock);
 		}		
 	}
-	
+
+	private void applyTaxToStocksSell() {
+		String period = request.getParameter("period");
+		period = period.substring(0, 4) + "-" + period.substring(4, 6);
+		String sqlPeriod = period + "%";
+		
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("datOperation", QueryTypeFilter.CONTAINS, sqlPeriod, QueryTypeCondition.AND);
+		qp.addSingleParameter("typeOperation", QueryTypeFilter.EQUAL, generalInfo.STOCK_SELL, QueryTypeCondition.AND);
+		qp.addSingleParameter("valResultSell", QueryTypeFilter.GREATER, "0", QueryTypeCondition.AND);
+		qp.addSingleParameter("valResultSell", QueryTypeFilter.LESS, "900", QueryTypeCondition.AND);
+		StocksOperation[] stocksOperationsList = DataManager.selectList(StocksOperation[].class, qp);
+
+		StocksTax stocksTax = new StocksTax();
+		int monthPeriod = Integer.parseInt(period.split("-")[1]);
+		int yearPeriod = Integer.parseInt(period.split("-")[0]);
+		qp.clearQuery();
+		qp.addSingleParameter("taxType", QueryTypeFilter.EQUAL, generalInfo.TAX_IR, QueryTypeCondition.AND);
+		qp.addSingleParameter("month", QueryTypeFilter.EQUAL, monthPeriod, QueryTypeCondition.AND);
+		qp.addSingleParameter("year", QueryTypeFilter.EQUAL, yearPeriod, QueryTypeCondition.AND);
+		StocksTax[] stocksTaxList = DataManager.selectList(StocksTax[].class, qp);
+		if (stocksTaxList != null && stocksTaxList.length > 0) {
+			stocksTax = stocksTaxList[0];
+		} else {
+			stocksTax = new StocksTax();
+			stocksTax.setTaxType(generalInfo.TAX_IR);
+			stocksTax.setMonth(monthPeriod);
+			stocksTax.setYear(yearPeriod);
+		}
+
+		System.out.println("\nVENDAS COM LUCRO");
+		Double totalSell = 0.0;
+		Double totalResultSell = 0.0;
+		Double totalDeduction = 0.0;
+		int cont = 0;
+		for (StocksOperation stocksOperation : stocksOperationsList) {
+			totalSell += (stocksOperation.getQuantity() * stocksOperation.getValStock()) - stocksOperation.getValCost();
+			totalResultSell += stocksOperation.getValResultSell();
+
+			stocksOperation.setOperationGainIRCalculated("S");
+
+			System.out.print(stocksOperation.getCodStock());
+			System.out.print(" | ");
+			System.out.print(stocksOperation.getDatOperation());
+			System.out.print(" | ");
+			System.out.print(stocksOperation.getTypeOperation());
+			System.out.print(" | ");
+			System.out.print(stocksOperation.getQuantity());
+			System.out.print(" | ");
+			System.out.print(stocksOperation.getValStock());
+			System.out.print(" | ");
+			System.out.println(stocksOperation.getValResultSell());
+			cont += 1;
+			if (cont == 3) {
+				break;
+			}
+		}
+		
+		System.out.print("\n\nTotal Lucro sem dedução: ");
+		System.out.println(totalResultSell);
+		System.out.print("Valor Imposto: ");
+		System.out.println(GeneralFunctions.round(totalResultSell * generalInfo.TAX_IR_PERC, 2));
+		System.out.print("\n");
+		
+//		Pegar vendas com prejuízo
+		System.out.println("\nVENDAS COM PREJUIZO");
+		qp.clearQuery();
+		qp.addSingleParameter("typeOperation", QueryTypeFilter.EQUAL, generalInfo.STOCK_SELL, QueryTypeCondition.AND);
+		qp.addFieldParameter("valIRLossConsumed", QueryTypeFilter.GREATER, "valResultSell", QueryTypeCondition.AND);
+		
+		qp.addSingleParameter("valResultSell", QueryTypeFilter.LESS, "0", QueryTypeCondition.AND);
+		StocksOperation[] stocksOperationLossList = DataManager.selectList(StocksOperation[].class, qp);
+		for (StocksOperation stocksOperationLoss : stocksOperationLossList) {
+			
+			if (totalResultSell > Math.abs(stocksOperationLoss.getValResultSell())) {
+				stocksOperationLoss.setValIRLossConsumed(stocksOperationLoss.getValResultSell());
+				totalDeduction += stocksOperationLoss.getValResultSell();
+				totalResultSell += stocksOperationLoss.getValResultSell();
+			} else if (totalResultSell > 0) {
+//				Tratar parcialidade
+				totalResultSell *= -1;
+				stocksOperationLoss.setValIRLossConsumed(totalResultSell);
+				totalDeduction += totalResultSell;
+//				break;
+				totalResultSell = 0.0;
+			}
+
+			stocksOperationLoss.setMonthIRLossConsumed(period);
+
+			System.out.print(stocksOperationLoss.getId());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getCodStock());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getDatOperation());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getTypeOperation());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getQuantity());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getValStock());
+			System.out.print(" | ");
+			System.out.print(stocksOperationLoss.getValResultSell());
+			System.out.print(" | ");			
+			System.out.print(stocksOperationLoss.getValIRLossConsumed());
+			System.out.print(" | ");
+			System.out.println(stocksOperationLoss.getMonthIRLossConsumed());
+			
+			if (totalResultSell == 0) {
+				break;
+			}
+		}
+
+		stocksTax.setValTotalPayment(GeneralFunctions.round(totalResultSell * generalInfo.TAX_IR_PERC, 2));
+
+		System.out.print("\nPeríodo: ");
+		System.out.println(sqlPeriod);
+		System.out.print("Total das Vendas: ");
+		System.out.println(totalSell);
+		System.out.print("Total das Deduções: ");
+		System.out.println(totalDeduction);
+		System.out.print("Total Lucro: ");
+		System.out.println(totalResultSell);
+		System.out.print("Valor Imposto: ");
+		System.out.println(stocksTax.getValTotalPayment());
+	}
+
 	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
 		double total = 0.0;
 		for (StocksOperation stock : stocksOperationList) {

@@ -355,7 +355,7 @@ public class SQLUtil {
 						whereParamAddQuoted(option.getContents()[1]);
 					}
 
-				} else if (option.getContents().length == 1) {
+				} else {
 
 					if (option.getFilter().equals(QueryTypeFilter.CONTAINS)) {
 
@@ -367,7 +367,11 @@ public class SQLUtil {
 
 						whereParamAdd(option.getField());
 						whereParamAdd(option.getFilter().getSql());
-						whereParamAddQuoted(option.getContents()[0]);
+						if (option.getContents().length == 2 && option.getContents()[1].equals("field")) {
+							whereParamAdd(option.getContents()[0]);
+						} else {
+							whereParamAddQuoted(option.getContents()[0]);
+						}
 					}
 				}
 			}

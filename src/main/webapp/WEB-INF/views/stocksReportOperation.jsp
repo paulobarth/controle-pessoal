@@ -318,6 +318,7 @@ tr.Info {
 			<thead class="table-light">
 				<th scope="col">Período</th>
 				<th scope="col">Valor das Vendas</th>
+				<th scope="col"></th>
 			</thead>  
 			<tbody>
 				<c:forEach items="${listMonthSales}" var="monthSales">
@@ -333,6 +334,11 @@ tr.Info {
 									minFractionDigits="2" />
 							</div>
 						</td>
+						<td>
+							<a class="btn btn-danger btn-sm"
+								style="display: ${monthSales.exceeded ? '' : 'none'}"
+								href="/controle-pessoal/stocksOperation.taxCalculation?period=${monthSales.period}">Calc</a>
+						</td>
 					</tr>
 
 					<c:forEach items="${monthSales.salesPerStocks}"
@@ -345,6 +351,12 @@ tr.Info {
 							<td>
 								<div class="pull-right">
 									<fmt:formatNumber value="${salesPerStocks.value}" type="number"
+										minFractionDigits="2" />
+									&nbsp&nbsp
+							</td>
+							<td>
+								<div class="pull-right">
+									<fmt:formatNumber value="${salesPerStocks.resultSell}" type="number"
 										minFractionDigits="2" />
 									&nbsp&nbsp
 							</td>
