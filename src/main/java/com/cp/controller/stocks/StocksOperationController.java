@@ -7,12 +7,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import com.cp.constants.generalInfo;
 import com.cp.controller.BaseControllerImpl;
@@ -23,13 +19,11 @@ import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Stocks;
 import com.cp.model.StocksOperation;
-import com.cp.model.StocksTax;
 import com.cp.model.view.StocksReportActualPosition;
 import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
 import com.cp.rest.WebService;
 import com.cp.rest.WebService.Dados;
-import com.cp.rest.WebService.Results;
 
 public class StocksOperationController extends BaseControllerImpl {
 
@@ -61,9 +55,9 @@ public class StocksOperationController extends BaseControllerImpl {
 		case "costsCalculation":
 			applyCostsToStocksOperations();
 			break;
-		case "taxCalculation":
-			applyTaxToStocksSell();
-			break;
+//		case "taxCalculation":
+//			applyTaxToStocksSell();
+//			break;
 
 		default:
 			break;
@@ -608,6 +602,15 @@ public class StocksOperationController extends BaseControllerImpl {
 		}		
 	}
 
+	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
+		double total = 0.0;
+		for (StocksOperation stock : stocksOperationList) {
+			total += stock.getQuantity() * stock.getValStock();
+		}
+		return total;
+	}
+
+	/*
 	private void applyTaxToStocksSell() {
 		String period = request.getParameter("period");
 		period = period.substring(0, 4) + "-" + period.substring(4, 6);
@@ -638,9 +641,9 @@ public class StocksOperationController extends BaseControllerImpl {
 		}
 
 		System.out.println("\nVENDAS COM LUCRO");
-		Double totalSell = 0.0;
-		Double totalResultSell = 0.0;
-		Double totalDeduction = 0.0;
+		double totalSell = 0.0;
+		double totalResultSell = 0.0;
+		double totalDeduction = 0.0;
 		int cont = 0;
 		for (StocksOperation stocksOperation : stocksOperationsList) {
 			totalSell += (stocksOperation.getQuantity() * stocksOperation.getValStock()) - stocksOperation.getValCost();
@@ -664,6 +667,8 @@ public class StocksOperationController extends BaseControllerImpl {
 				break;
 			}
 		}
+		totalSell = GeneralFunctions.round(totalSell, 2);
+		totalResultSell = GeneralFunctions.round(totalResultSell, 2);
 		
 		System.out.print("\n\nTotal Lucro sem dedução: ");
 		System.out.println(totalResultSell);
@@ -674,25 +679,23 @@ public class StocksOperationController extends BaseControllerImpl {
 //		Pegar vendas com prejuízo
 		System.out.println("\nVENDAS COM PREJUIZO");
 		qp.clearQuery();
+		qp.addSingleParameter("datOperation", QueryTypeFilter.LESSEQUAL, sqlPeriod + "-31", QueryTypeCondition.AND);
 		qp.addSingleParameter("typeOperation", QueryTypeFilter.EQUAL, generalInfo.STOCK_SELL, QueryTypeCondition.AND);
 		qp.addFieldParameter("valIRLossConsumed", QueryTypeFilter.GREATER, "valResultSell", QueryTypeCondition.AND);
 		
 		qp.addSingleParameter("valResultSell", QueryTypeFilter.LESS, "0", QueryTypeCondition.AND);
 		StocksOperation[] stocksOperationLossList = DataManager.selectList(StocksOperation[].class, qp);
+		double valIRconsumed = 0.0;
 		for (StocksOperation stocksOperationLoss : stocksOperationLossList) {
-			
+
 			if (totalResultSell > Math.abs(stocksOperationLoss.getValResultSell())) {
-				stocksOperationLoss.setValIRLossConsumed(stocksOperationLoss.getValResultSell());
-				totalDeduction += stocksOperationLoss.getValResultSell();
-				totalResultSell += stocksOperationLoss.getValResultSell();
+				valIRconsumed = stocksOperationLoss.consumeValIRLoss(stocksOperationLoss.getValResultSell());
 			} else if (totalResultSell > 0) {
 //				Tratar parcialidade
-				totalResultSell *= -1;
-				stocksOperationLoss.setValIRLossConsumed(totalResultSell);
-				totalDeduction += totalResultSell;
-//				break;
-				totalResultSell = 0.0;
+				valIRconsumed = stocksOperationLoss.consumeValIRLoss(totalResultSell * -1);
 			}
+			totalDeduction += valIRconsumed;
+			totalResultSell += valIRconsumed;
 
 			stocksOperationLoss.setMonthIRLossConsumed(period);
 
@@ -714,7 +717,7 @@ public class StocksOperationController extends BaseControllerImpl {
 			System.out.print(" | ");
 			System.out.println(stocksOperationLoss.getMonthIRLossConsumed());
 			
-			if (totalResultSell == 0) {
+			if (totalResultSell <= 0) {
 				break;
 			}
 		}
@@ -732,12 +735,5 @@ public class StocksOperationController extends BaseControllerImpl {
 		System.out.print("Valor Imposto: ");
 		System.out.println(stocksTax.getValTotalPayment());
 	}
-
-	private double getTotalStocksValue(StocksOperation[] stocksOperationList) {
-		double total = 0.0;
-		for (StocksOperation stock : stocksOperationList) {
-			total += stock.getQuantity() * stock.getValStock();
-		}
-		return total;
-	}
+	*/
 }

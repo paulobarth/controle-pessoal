@@ -337,7 +337,7 @@ tr.Info {
 						<td>
 							<a class="btn btn-danger btn-sm"
 								style="display: ${monthSales.exceeded ? '' : 'none'}"
-								href="/controle-pessoal/stocksOperation.taxCalculation?period=${monthSales.period}">Calc</a>
+								href="/controle-pessoal/stocksTax.taxSimulation?period=${monthSales.period}">Sim</a>
 						</td>
 					</tr>
 
