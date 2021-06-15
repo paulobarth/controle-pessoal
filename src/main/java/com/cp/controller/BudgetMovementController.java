@@ -122,7 +122,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 		for (int pos = 0; pos < movementList.length; pos++) {
 			
 			Movement movement = movementList[pos];
-			month = GeneralFunctions.getMonthOfSqlDate(movement.getDatMovement());
+			month = Integer.parseInt(GeneralFunctions.getMonthOfDate(movement.getDatMovement()));
 			month--;
 			
 			try {

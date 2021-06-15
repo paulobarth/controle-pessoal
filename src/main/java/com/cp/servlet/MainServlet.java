@@ -34,7 +34,7 @@ import com.cp.controller.stocks.StocksTaxController;
 							"/stocksOperation.filter",  "/stocksOperation.reportList", "/stocksOperation.reportFilter",
 							"/stocksOperation.costs", "/stocksOperation.costsCalculation", "/stocksOperation.taxCalculation",
 							"/stocksGain.list",  		"/stocksGain.save", 		"/stocksGain.update",		"/stocksGain.delete",
-							"/stocksTax.taxSimulation", "/stocksTax.taxCalculation",
+							"/stocksTax.list", "/stocksTax.taxSimulation", "/stocksTax.taxCalculation", "stocksTax.taxPayment"
 							})
 public class MainServlet extends HttpServlet {
 
@@ -70,6 +70,7 @@ public class MainServlet extends HttpServlet {
 		try {
 			getController(options[0]).execute(request, response, options[1]);
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 		}
 	}
 

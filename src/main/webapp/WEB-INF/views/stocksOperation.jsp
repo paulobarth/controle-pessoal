@@ -72,6 +72,11 @@
 									type="text" value="${stocksOperation.datOperation}">
 							</div>
 							<div class="col-xs-2">
+								<label for="ex2">Data Liquidação</label> <input
+									class="form-control" id="datepickersett" name="datSettlement"
+									type="text" value="${stocksOperation.datSettlement}">
+							</div>
+							<div class="col-xs-2">
 								<label for="ex1">Quantidade</label> <input class="form-control"
 									name="quantity" type="number"
 									value="${stocksOperation.quantity}">
@@ -111,6 +116,7 @@
 				<th>Tipo Operação</th>
 				<th>Ação</th>
 				<th>Data Operação</th>
+				<th>Data Liquidação</th>
 				<th>Quantidade</th>
 				<th>Valor Cota</th>
 				<th>Custo Operação</th>
@@ -124,6 +130,7 @@
 					<td>${stocksOperation.typeOperation}</td>
 					<td>${stocksOperation.codStock}</td>
 					<td>${stocksOperation.datOperation}</td>
+					<td>${stocksOperation.datSettlement}</td>
 					<td>${stocksOperation.quantity}</td>
 					<td>${stocksOperation.valStock}</td>
 					<td>${stocksOperation.valCost}</td>
@@ -156,5 +163,6 @@
 		$("#datepickerfilterini").datepicker();
 		$("#datepickerfilterend").datepicker();
 		$("#datepickeroper").datepicker();
+		$("#datepickersett").datepicker();
 	});
 </script>

@@ -9,11 +9,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
+import java.util.List;
 
 import com.cp.constants.databaseInfo;
 import com.cp.fwk.util.GeneralFunctions;
-import com.cp.fwk.util.sql.SQLUtil;
 import com.cp.fwk.util.model.QueryParameter;
+import com.cp.fwk.util.sql.SQLUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -43,6 +44,9 @@ public class DataManager {
 		Class modelClazz = arrayClazz.getComponentType();
 
 		String json = executeSelect(modelClazz, SQLUtil.selectAllCommand(modelClazz, whereClause));
+		if (json.isEmpty()) {
+			return null;
+		}
 
 		String jFinal = "[" + json + "]";
 
@@ -143,7 +147,7 @@ public class DataManager {
 		return newContent;
 	}
 
-	public static void insert(final Class clazz, Object obj) {
+	public static void insert(final Class clazz, List obj) {
 
 		int topId = selectTopId(clazz);
 

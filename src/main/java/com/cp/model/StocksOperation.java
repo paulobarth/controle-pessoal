@@ -8,13 +8,12 @@ public class StocksOperation {
 	private String codStock;
 	private String typeOperation;
 	private String datOperation;
+	private String datSettlement;
 	private int quantity;
 	private double valStock;
 	private double valCost;
 	private double valResultSell;
-	private double valIRLossConsumed;
-	private String monthIRLossConsumed;
-	private String operationGainIRCalculated; // S Sim  N Não
+	private double valTotalIRLossConsumed;
 
 	public int getId() {
 		return id;
@@ -70,6 +69,12 @@ public class StocksOperation {
 	public void setDatOperation(String datOperation) {
 		this.datOperation = GeneralFunctions.stringDatetoSql(datOperation);
 	}
+	public String getDatSettlement() {
+		return GeneralFunctions.sqlDateToString(datSettlement);
+	}
+	public void setDatSettlement(String datSettlement) {
+		this.datSettlement = GeneralFunctions.stringDatetoSql(datSettlement);
+	}
 	public String getCodStock() {
 		return codStock;
 	}
@@ -82,37 +87,28 @@ public class StocksOperation {
 	public void setValResultSell(double valResultSell) {
 		this.valResultSell = valResultSell;
 	}
-	public double getValIRLossConsumed() {
-		return valIRLossConsumed;
-	}
-	public String getMonthIRLossConsumed() {
-		return monthIRLossConsumed;
-	}
-	public void setMonthIRLossConsumed(String monthIRLossConsumed) {
-		this.monthIRLossConsumed = monthIRLossConsumed;
-	}
-	public String getOperationGainIRCalculated() {
-		return operationGainIRCalculated;
-	}
-	public void setOperationGainIRCalculated(String operationGainIRCalculated) {
-		this.operationGainIRCalculated = operationGainIRCalculated;
-	}
+	public double setValTotalIRLossConsumed(Double valTotalIRLossConsumed) {
+		return this.valTotalIRLossConsumed = valTotalIRLossConsumed;
+	}	
+	public double getValTotalIRLossConsumed() {
+		return valTotalIRLossConsumed;
+	}	
 	public double consumeValIRLoss(double valIR) {
 		if ((getValResultSell() >= 0) || (valIR >= 0)) {
 			return 0.0;
 		}
 		double newValIRLossConsumed = 0.0; 
-		if (valIR + getValIRLossConsumed() > getValResultSell()) {
+		if (valIR + getValTotalIRLossConsumed() > getValResultSell()) {
 			newValIRLossConsumed = valIR;
 		} else {
-			double sdo = getValResultSell() - getValIRLossConsumed();
+			double sdo = getValResultSell() - getValTotalIRLossConsumed();
 			if (sdo <= valIR) {
 				newValIRLossConsumed = valIR;
 			} else {
 				newValIRLossConsumed = sdo;
 			}
 		}
-		this.valIRLossConsumed += newValIRLossConsumed;
+		this.valTotalIRLossConsumed += newValIRLossConsumed;
 		return newValIRLossConsumed;
 	}
 }

@@ -22,11 +22,11 @@
 							</div>
 							<div class="col-xs-2">
 								<label for="ex2">Nome</label> <input class="form-control"
-									name="codStock" type="text" value="${stocks.name}">
+									name="name" type="text" value="${stocks.name}">
 							</div>
 							<div class="col-xs-2">
 								<label for="ex2">Empresa</label> <input class="form-control"
-									name="codStock" type="text" value="${stocks.companyName}">
+									name="companyName" type="text" value="${stocks.companyName}">
 							</div>
 
 							<div class="col-xs-2">
@@ -42,6 +42,11 @@
 										${stocks.codPortfolio == 'Particular' ? 'selected="selected"' : ''}>
 										Particular</option>
 								</select>
+							</div>
+							<div class="col-xs-2">
+								<label for="ex1">Preço</label> <input class="form-control"
+									name="actualPrice" type="number" step="0.01"
+									value="${stocks.actualPrice}">
 							</div>
 						</div>
 
@@ -68,6 +73,7 @@
 				<th>Nome</th>
 				<th>Empresa</th>
 				<th>Carteira</th>
+				<th>Preço</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -79,6 +85,7 @@
 					<td>${stocks.name}</td>
 					<td>${stocks.companyName}</td>
 					<td>${stocks.codPortfolio}</td>
+					<td>${stocks.actualPrice}</td>
 
 					<td><a class="btn btn-primary"
 						href="/controle-pessoal/stocks.update?id=${stocks.id}">Alterar</a>

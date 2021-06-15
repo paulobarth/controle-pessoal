@@ -8,10 +8,12 @@ import java.text.SimpleDateFormat;
 
 public class GeneralFunctions {
 
-	private static boolean showLog = false;
-	private static String[] TEXTMONTHLIST = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
-	public static String[] ORIGIN_LIST = new String[]{ "Conta Corrente - Santander", "Cartão Crédito - Santander",
+	private static final boolean showLog = false;
+	private static final String[] TEXTMONTHLIST = {"Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"};
+	public static final String[] ORIGIN_LIST = new String[]{ "Conta Corrente - Santander", "Cartão Crédito - Santander",
 			"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
+	public static final String GAIN = "GAIN";
+	public static final String LOSS = "LOSS";
 
 	public static String stringDatetoSql(String date) {
 		if (date == null) {
@@ -54,22 +56,28 @@ public class GeneralFunctions {
 		}
 	}
 
-	public static int getMonthOfDate (String stringDate) {
+	public static String getMonthOfDate (String stringDate) {
 		return getMonthOfSqlDate(stringDatetoSql(stringDate));
 	}
 
 	public static String getYearMonthOfDate (String stringDate) {
 		return getYearMonthOfSqlDate(stringDatetoSql(stringDate));
 	}
-	
-	public static int getMonthOfSqlDate (String sqlDate) {
-		String[] dataSplit = sqlDate.split("/");
-		
+
+	public static String getDayOfSqlDate(String sqlDate) {
+		return getInfoFromSqlDate(sqlDate, 2);
+	}
+
+	public static String getMonthOfSqlDate (String sqlDate) {
+		return getInfoFromSqlDate(sqlDate, 1);
+	}
+
+	private static String getInfoFromSqlDate (String sqlDate, int position) {
+		String[] dataSplit = sqlDate.split("-");
 		if (dataSplit.length == 3) {
-			return Integer.parseInt(dataSplit[0]);
+			return dataSplit[position]; 
 		}
-		
-		return 0;
+		return "";
 	}
 
 	public static String getYearMonthOfSqlDate (String sqlDate) {
@@ -112,10 +120,6 @@ public class GeneralFunctions {
 
 	public static String convertMonthToText (int month) {
 		return TEXTMONTHLIST[month - 1];
-	}
-
-	public static String getDayOfSqlDate(String datOperation) {
-		return datOperation.split("-")[2];
 	}
 
 	public static Double round(double d, int i) {

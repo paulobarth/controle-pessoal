@@ -36,6 +36,7 @@ public class StocksReportTax {
 		private double profitSell = 0.0;
 		private double resultSell = 0.0;
 		private double resultWithDeduction = 0.0;
+		private String statusTax;
 		public double getTotalSell() {
 			return totalSell;
 		}
@@ -59,6 +60,12 @@ public class StocksReportTax {
 		}
 		public void setResultWithDeduction(double resultWithDeduction) {
 			this.resultWithDeduction = resultWithDeduction;
+		}
+		public String getStatusTax() {
+			return statusTax;
+		}
+		public void setStatusTax(String statusTax) {
+			this.statusTax = statusTax;
 		}
 	}
 }

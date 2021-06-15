@@ -26,6 +26,7 @@ tr.Info {
 			<th scope="col">Deduções</th>
 			<th scope="col">Base IR</th>
 			<th scope="col">Imposto a pagar</th>
+			<th scope="col">Status</th>
 		</thead>  
 		<tbody>
 			<c:forEach items="${stocksReportTaxList}" var="stocksReportTax">
@@ -71,6 +72,13 @@ tr.Info {
 								minFractionDigits="2" />
 						</div>
 					</td>
+					<td>${stocksReportTax.stocksTax.statusTax}
+					&nbsp&nbsp
+					<a class="btn btn-primary btn-sm"
+						style="display: ${stocksReportTax.stocksTax.statusTax == 'Pendente' ? '' : 'none'}"
+						href="/controle-pessoal/stocksTax.taxPayment?id=${stocksReportTax.stocksTax.id}">Pagar</a>
+					
+					</td>
 				</tr>
 
 				<c:forEach items="${stocksReportTax.stocksSellList}"
@@ -78,7 +86,7 @@ tr.Info {
 					<tr
 						class="table-light collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
 						<td>&nbsp&nbspLucro - ${stocksSell.codStock}</td>
-						<td>&nbsp&nbsp${stocksSell.datOperation}</td>
+						<td>&nbsp&nbsp${stocksSell.datSettlement}</td>
 						<td></td>
 						<td>
 							<div class="pull-right">
@@ -97,6 +105,7 @@ tr.Info {
 						<td></td>
 						<td></td>
 						<td></td>
+						<td></td>
 					</tr>
 				</c:forEach>
 				
@@ -106,7 +115,7 @@ tr.Info {
 					<tr
 						class="table-light collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
 						<td>&nbsp&nbspPrej - ${stocksDeduction.codStock}</td>
-						<td>&nbsp&nbsp${stocksDeduction.datOperation}</td>
+						<td>&nbsp&nbsp${stocksDeduction.datSettlement}</td>
 						<td></td>
 						<td>
 							<div class="pull-right">
@@ -124,11 +133,12 @@ tr.Info {
 						</td>
 						<td>
 							<div class="pull-right">
-								<fmt:formatNumber value="${stocksDeduction.valIRLossConsumed}" type="number"
+								<fmt:formatNumber value="${stocksDeduction.valTotalIRLossConsumed}" type="number"
 									minFractionDigits="2" />
 								&nbsp&nbsp
 							</div>
 						</td>
+						<td></td>
 						<td></td>
 						<td></td>
 					</tr>
@@ -136,6 +146,10 @@ tr.Info {
 			</c:forEach>
 		</tbody>
 	</table>
+	<a class="btn btn-primary"
+		style="display: ${showCalcutationButton ? '' : 'none'}"
+		href="/controle-pessoal/stocksTax.taxCalculation?period=${period}">Calcular</a>
+
 
 </div>
 

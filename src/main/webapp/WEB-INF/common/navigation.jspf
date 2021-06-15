@@ -51,6 +51,9 @@
 						href="/controle-pessoal/stocksOperation.reportList">Relatório
 						Operações</a>
 					<a class="dropdown-item"
+						href="/controle-pessoal/stocksTax.list">Relatório
+						Impostos</a>
+					<a class="dropdown-item"
 						href="/controle-pessoal/stocksReportGain.list">Relatório
 						Ganhos</a>
 				</div></li>

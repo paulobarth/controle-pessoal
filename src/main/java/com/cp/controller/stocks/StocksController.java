@@ -47,6 +47,7 @@ public class StocksController extends BaseControllerImpl {
 		stocks.setName(request.getParameter("name"));
 		stocks.setCompanyName(request.getParameter("companyName"));
 		stocks.setCodPortfolio(request.getParameter("codPortfolio"));
+		stocks.setActualPrice(Double.parseDouble(request.getParameter("actualPrice")));
 
 		String idParam = request.getParameter("id");
 

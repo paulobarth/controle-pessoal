@@ -336,7 +336,7 @@ tr.Info {
 						</td>
 						<td>
 							<a class="btn btn-danger btn-sm"
-								style="display: ${monthSales.exceeded ? '' : 'none'}"
+								style="display: ${monthSales.showTaxButton ? '' : 'none'}"
 								href="/controle-pessoal/stocksTax.taxSimulation?period=${monthSales.period}">Sim</a>
 						</td>
 					</tr>

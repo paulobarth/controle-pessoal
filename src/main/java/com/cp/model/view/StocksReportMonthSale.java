@@ -11,6 +11,7 @@ public class StocksReportMonthSale {
 	private Double value;
 	private boolean exceeded;
 	private String periodDescription;
+	private boolean showTaxButton;
 	private List<SalesPerStocks> salesPerStocks = new ArrayList<SalesPerStocks>();
 
 	private static Double LIMITVALUE = 20000.0;
@@ -48,6 +49,14 @@ public class StocksReportMonthSale {
 		return periodDescription;
 	}
 
+	public boolean isShowTaxButton() {
+		return showTaxButton;
+	}
+
+	public void setShowTaxButton(boolean showTaxButton) {
+		this.showTaxButton = showTaxButton;
+	}
+
 	public List<SalesPerStocks> getSalesPerStocks() {
 		return salesPerStocks;
 	}
@@ -56,9 +65,10 @@ public class StocksReportMonthSale {
 		this.salesPerStocks = salesPerStocks;
 	}
 
-	public void addStockSale(String codStock, String datOperation, Double valSale, Double resultSell) {
+	public void addStockSale(String codStock, String datOperation, String datSettlement, Double valSale, Double resultSell) {
 		SalesPerStocks sale = new SalesPerStocks();
 		sale.setCodStock(codStock);
+		sale.setDatSettlement(datSettlement);
 		sale.setDatOperation(datOperation);
 		sale.setValue(valSale);
 		sale.setResultSell(resultSell);
@@ -69,6 +79,7 @@ public class StocksReportMonthSale {
 
 		private String codStock;
 		private String datOperation;
+		private String datSettlement;
 		private Double value;
 		private Double resultSell;
 		private String dayOperation;
@@ -87,7 +98,16 @@ public class StocksReportMonthSale {
 
 		public void setDatOperation(String datOperation) {
 			this.datOperation = GeneralFunctions.stringDatetoSql(datOperation);
-			this.dayOperation = GeneralFunctions.getDayOfSqlDate(this.datOperation);
+			defineDatyOperation();
+		}
+
+		public String getDatSettlement() {
+			return GeneralFunctions.sqlDateToString(datSettlement);
+		}
+
+		public void setDatSettlement(String datSettlement) {
+			this.datSettlement = GeneralFunctions.stringDatetoSql(datSettlement);
+			defineDatyOperation();
 		}
 
 		public Double getValue() {
@@ -100,6 +120,16 @@ public class StocksReportMonthSale {
 
 		public String getDayOperation() {
 			return dayOperation;
+		}
+
+		private void defineDatyOperation() {
+			if (this.datSettlement != null && this.datOperation != null) {
+				this.dayOperation = GeneralFunctions.getDayOfSqlDate(this.datSettlement);
+				if (!this.datSettlement.equals(this.datOperation)) {
+					this.dayOperation += "  Oper. " + GeneralFunctions.getDayOfSqlDate(this.datOperation) + "/" +
+													  GeneralFunctions.getMonthOfSqlDate(this.datOperation);
+				}
+			}
 		}
 
 		public Double getResultSell() {

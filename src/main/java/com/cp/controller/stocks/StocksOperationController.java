@@ -19,6 +19,7 @@ import com.cp.fwk.util.query.QueryTypeCondition;
 import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Stocks;
 import com.cp.model.StocksOperation;
+import com.cp.model.StocksTax;
 import com.cp.model.view.StocksReportActualPosition;
 import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
@@ -75,6 +76,7 @@ public class StocksOperationController extends BaseControllerImpl {
 		StocksOperation.setTypeOperation(request.getParameter("typeOperation"));
 		StocksOperation.setCodStock(request.getParameter("codStock"));
 		StocksOperation.setDatOperation(request.getParameter("datOperation"));
+		StocksOperation.setDatSettlement(request.getParameter("datSettlement"));
 		StocksOperation.setQuantity(request.getParameter("quantity"));
 		StocksOperation.setValStock(request.getParameter("valStock"));
 		StocksOperation.setValCost(request.getParameter("valCost"));
@@ -446,7 +448,7 @@ public class StocksOperationController extends BaseControllerImpl {
 				continue;
 			}
 
-			period = GeneralFunctions.getYearMonthOfDate(stocksOperation.getDatOperation());
+			period = GeneralFunctions.getYearMonthOfDate(stocksOperation.getDatSettlement());
 
 			StocksReportMonthSale sale = monthSales.get(period);
 
@@ -457,15 +459,31 @@ public class StocksOperationController extends BaseControllerImpl {
 
 				sale.setPeriod(period);
 				sale.setValue(totalAmount);
-
 				monthSales.put(period, sale);
 			} else {
 				sale.sumValue(totalAmount);
 			}
-			sale.addStockSale(stocksOperation.getCodStock(), stocksOperation.getDatOperation(), totalAmount, stocksOperation.getValResultSell());
+			sale.addStockSale(stocksOperation.getCodStock(), stocksOperation.getDatOperation(), stocksOperation.getDatSettlement(), totalAmount, stocksOperation.getValResultSell());
+
+			if (sale.isExceeded()) {
+				sale.setShowTaxButton(getTaxStatusByPeriod(period));
+			}
 		}
 
 		return monthSales;
+	}
+
+	private static boolean getTaxStatusByPeriod(String period) {
+		QueryParameter qp = new QueryParameter();
+		String year = period.substring(0, 4);
+		String month = period.substring(5, 6);
+		qp.addSingleParameter("year", QueryTypeFilter.EQUAL, year, QueryTypeCondition.AND);
+		qp.addSingleParameter("month", QueryTypeFilter.EQUAL, month, QueryTypeCondition.AND);
+		StocksTax stocksTax = DataManager.selectList(StocksTax[].class, qp);
+		if (stocksTax != null) {
+			return false;
+		}
+		return true;
 	}
 
 	private static Set<String> getListOfStocksFromStocksOperation(StocksOperation[] stocksOperationList, Stocks[] stocksList, boolean showAllStocks) {
