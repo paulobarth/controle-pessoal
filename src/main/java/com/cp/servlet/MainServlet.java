@@ -34,7 +34,8 @@ import com.cp.controller.stocks.StocksTaxController;
 							"/stocksOperation.filter",  "/stocksOperation.reportList", "/stocksOperation.reportFilter",
 							"/stocksOperation.costs", "/stocksOperation.costsCalculation", "/stocksOperation.taxCalculation",
 							"/stocksGain.list",  		"/stocksGain.save", 		"/stocksGain.update",		"/stocksGain.delete",
-							"/stocksTax.list", "/stocksTax.taxSimulation", "/stocksTax.taxCalculation", "stocksTax.taxPayment"
+							"/stocksTax.list", "/stocksTax.taxSimulation", "/stocksTax.taxCalculation",
+							"/stocksTax.taxPayment", "/stocksTax.taxCancel"
 							})
 public class MainServlet extends HttpServlet {
 

@@ -479,7 +479,7 @@ public class StocksOperationController extends BaseControllerImpl {
 		String month = period.substring(5, 6);
 		qp.addSingleParameter("year", QueryTypeFilter.EQUAL, year, QueryTypeCondition.AND);
 		qp.addSingleParameter("month", QueryTypeFilter.EQUAL, month, QueryTypeCondition.AND);
-		StocksTax stocksTax = DataManager.selectList(StocksTax[].class, qp);
+		StocksTax[] stocksTax = DataManager.selectList(StocksTax[].class, qp);
 		if (stocksTax != null) {
 			return false;
 		}

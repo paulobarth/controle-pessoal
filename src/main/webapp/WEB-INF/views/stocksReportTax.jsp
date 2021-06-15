@@ -74,6 +74,10 @@ tr.Info {
 					</td>
 					<td>${stocksReportTax.stocksTax.statusTax}
 					&nbsp&nbsp
+					<a class="btn btn-danger btn-sm"
+						style="display: ${stocksReportTax.stocksTax.statusTax == 'Pendente' ? '' : 'none'}"
+						href="/controle-pessoal/stocksTax.taxCancel?id=${stocksReportTax.stocksTax.id}">Estornar</a>
+					&nbsp&nbsp
 					<a class="btn btn-primary btn-sm"
 						style="display: ${stocksReportTax.stocksTax.statusTax == 'Pendente' ? '' : 'none'}"
 						href="/controle-pessoal/stocksTax.taxPayment?id=${stocksReportTax.stocksTax.id}">Pagar</a>
@@ -84,9 +88,9 @@ tr.Info {
 				<c:forEach items="${stocksReportTax.stocksSellList}"
 					var="stocksSell">
 					<tr
-						class="table-light collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
-						<td>&nbsp&nbspLucro - ${stocksSell.codStock}</td>
-						<td>&nbsp&nbsp${stocksSell.datSettlement}</td>
+						class="table-success collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
+						<td>&nbsp&nbsp${stocksSell.codStock}</td>
+						<td>${stocksSell.datSettlement}</td>
 						<td></td>
 						<td>
 							<div class="pull-right">
@@ -113,9 +117,9 @@ tr.Info {
 				<c:forEach items="${stocksReportTax.stocksDeductionList}"
 					var="stocksDeduction">
 					<tr
-						class="table-light collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
-						<td>&nbsp&nbspPrej - ${stocksDeduction.codStock}</td>
-						<td>&nbsp&nbsp${stocksDeduction.datSettlement}</td>
+						class="table-danger collapse multi-collapse collapseItem${stocksReportTax.stocksTax.month}">
+						<td>&nbsp&nbsp${stocksDeduction.codStock}</td>
+						<td>${stocksDeduction.datSettlement}</td>
 						<td></td>
 						<td>
 							<div class="pull-right">

@@ -48,10 +48,38 @@ public class StocksTaxController extends BaseControllerImpl {
 		case "taxPayment":
 			paymentPeriod();
 			break;
+		case "taxCancel":
+			cancelTax();
+			break;
 
 		default:
 			break;
 		}
+	}
+
+	private void cancelTax() {
+		int id = Integer.parseInt(request.getParameter("id"));
+		StocksTax stocksTax = DataManager.selectId(StocksTax.class, id);
+		
+		if (stocksTax.getPaymentStatus() != 1) {
+			return;
+		}
+
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleParameter("idStocksTax", QueryTypeFilter.EQUAL, stocksTax.getId(), QueryTypeCondition.AND);
+		StocksTaxOperation[] stocksTaxOperationList = DataManager.selectList(StocksTaxOperation[].class, qp);
+		if (stocksTaxOperationList != null) {
+			for (StocksTaxOperation stocksTaxOperation : stocksTaxOperationList) {
+				if (stocksTaxOperation.getTaxOperationType().equals(GeneralFunctions.LOSS)) {
+					StocksOperation stocksOperationLoss = DataManager.selectId(StocksOperation.class, stocksTaxOperation.getIdStocksOperation());
+					stocksOperationLoss.setValTotalIRLossConsumed(stocksOperationLoss.getValTotalIRLossConsumed() +
+							(stocksTaxOperation.getValIRLossConsumed() * -1));
+					DataManager.updateId(StocksOperation.class, stocksOperationLoss);
+				}
+				DataManager.deleteId(StocksTaxOperation.class, stocksTaxOperation.getId());
+			}
+		}
+		DataManager.deleteId(StocksTax.class, stocksTax.getId());
 	}
 
 	private void paymentPeriod() {
