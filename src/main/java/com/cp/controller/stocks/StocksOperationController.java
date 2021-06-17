@@ -1,6 +1,9 @@
 package com.cp.controller.stocks;
 
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +26,14 @@ import com.cp.model.StocksTax;
 import com.cp.model.view.StocksReportActualPosition;
 import com.cp.model.view.StocksReportMonthSale;
 import com.cp.model.view.StocksReportOperation;
+import com.cp.model.view.StocksReportRentability;
 import com.cp.rest.WebService;
 import com.cp.rest.WebService.Dados;
+import com.opencsv.bean.StatefulBeanToCsv;
+import com.opencsv.bean.StatefulBeanToCsvBuilder;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+
 
 public class StocksOperationController extends BaseControllerImpl {
 
@@ -46,6 +55,12 @@ public class StocksOperationController extends BaseControllerImpl {
 		switch (option) {
 		case "reportList":
 			applyFilterMovement();
+//			try {
+//				exportCSV();
+//			} catch (CsvDataTypeMismatchException | CsvRequiredFieldEmptyException | IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 			break;
 		case "reportFilter":
 			super.filter();
@@ -56,9 +71,6 @@ public class StocksOperationController extends BaseControllerImpl {
 		case "costsCalculation":
 			applyCostsToStocksOperations();
 			break;
-//		case "taxCalculation":
-//			applyTaxToStocksSell();
-//			break;
 
 		default:
 			break;
@@ -324,6 +336,7 @@ public class StocksOperationController extends BaseControllerImpl {
 		request.setAttribute("totalDifference", totalDifference);
 		request.setAttribute("totalFuture", totalFuture);
 
+		rentabilityReport();
 	}
 
 	private void updateStockOperationResultSell(StocksOperation stockOperation) {
@@ -628,130 +641,97 @@ public class StocksOperationController extends BaseControllerImpl {
 		return total;
 	}
 
-	/*
-	private void applyTaxToStocksSell() {
-		String period = request.getParameter("period");
-		period = period.substring(0, 4) + "-" + period.substring(4, 6);
-		String sqlPeriod = period + "%";
+	private void rentabilityReport() {
+		QueryParameter qp = new QueryParameter();
+
+		String filterCodPortfolio = request.getParameter("filterCodPortfolio");
+		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
+		Stocks[] stocksList = DataManager.selectList(Stocks[].class, qp);
+		
+		qp.clearQuery();
+		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+		StocksOperation[] stocksOperationArr = DataManager.selectList(StocksOperation[].class, qp);
+		
+		List<StocksOperation> stocksOperationList = new ArrayList<StocksOperation>();
+		boolean found;
+		for (StocksOperation item : stocksOperationArr) {
+			found = false;
+			for (Stocks stock: stocksList) {
+				if (item.getCodStock().equals(stock.getCodStock())) {
+					found = true;
+					break;
+				}
+			}
+			if (found) {
+				stocksOperationList.add(item);
+			}
+		}
+		
+		List<StocksReportRentability> rentabilityList = new ArrayList<StocksReportRentability>();
+		StocksReportRentability rentability = null; 
+		String period;
+		String oldPeriod = "INICIO";
+		double maxCashInvestedPeriod = 0.0;
+		double accumCashInvestedPeriod = 0.0;
+		double accumRentability = 0.0;
+		double totalStockOperation = 0.0;
+		for (StocksOperation stockOperation : stocksOperationList) {
+			period = GeneralFunctions.getYearMonthOfDate(stockOperation.getDatOperation());
+
+			if (!period.equals(oldPeriod)) {
+
+				if (!"INICIO".equals(oldPeriod)) {
+					rentabilityList.add(rentability);
+				}
+
+				rentability = new StocksReportRentability();
+				rentability.setPeriod(period);
+				oldPeriod = period;
+			}
+
+			rentability.sumPeriodResult(stockOperation.getValResultSell());
+			accumRentability += stockOperation.getValResultSell();
+
+			totalStockOperation = stockOperation.getValStock() * stockOperation.getQuantity();
+			if (stockOperation.getTypeOperation().equals(generalInfo.STOCK_SELL)) {
+				totalStockOperation *= -1;
+			}
+			accumCashInvestedPeriod += totalStockOperation;
+
+			if (accumCashInvestedPeriod > maxCashInvestedPeriod) {
+				maxCashInvestedPeriod = accumCashInvestedPeriod;
+			}
+
+			rentability.setMaxCashInvested(maxCashInvestedPeriod);
+			rentability.setPeriodRentability(GeneralFunctions.round((rentability.getPeriodResult() / maxCashInvestedPeriod) * 100, 2));
+			rentability.setAccumRentability(GeneralFunctions.round((accumRentability / maxCashInvestedPeriod) * 100, 2));
+		}
+		if (rentability != null) {
+			rentabilityList.add(rentability);
+		}
+
+		request.setAttribute("rentabilityList", rentabilityList);
+	}
+
+	private void exportCSV() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
 		
 		QueryParameter qp = new QueryParameter();
-		qp.addSingleParameter("datOperation", QueryTypeFilter.CONTAINS, sqlPeriod, QueryTypeCondition.AND);
-		qp.addSingleParameter("typeOperation", QueryTypeFilter.EQUAL, generalInfo.STOCK_SELL, QueryTypeCondition.AND);
-		qp.addSingleParameter("valResultSell", QueryTypeFilter.GREATER, "0", QueryTypeCondition.AND);
-		qp.addSingleParameter("valResultSell", QueryTypeFilter.LESS, "900", QueryTypeCondition.AND);
-		StocksOperation[] stocksOperationsList = DataManager.selectList(StocksOperation[].class, qp);
-
-		StocksTax stocksTax = new StocksTax();
-		int monthPeriod = Integer.parseInt(period.split("-")[1]);
-		int yearPeriod = Integer.parseInt(period.split("-")[0]);
-		qp.clearQuery();
-		qp.addSingleParameter("taxType", QueryTypeFilter.EQUAL, generalInfo.TAX_IR, QueryTypeCondition.AND);
-		qp.addSingleParameter("month", QueryTypeFilter.EQUAL, monthPeriod, QueryTypeCondition.AND);
-		qp.addSingleParameter("year", QueryTypeFilter.EQUAL, yearPeriod, QueryTypeCondition.AND);
-		StocksTax[] stocksTaxList = DataManager.selectList(StocksTax[].class, qp);
-		if (stocksTaxList != null && stocksTaxList.length > 0) {
-			stocksTax = stocksTaxList[0];
-		} else {
-			stocksTax = new StocksTax();
-			stocksTax.setTaxType(generalInfo.TAX_IR);
-			stocksTax.setMonth(monthPeriod);
-			stocksTax.setYear(yearPeriod);
-		}
-
-		System.out.println("\nVENDAS COM LUCRO");
-		double totalSell = 0.0;
-		double totalResultSell = 0.0;
-		double totalDeduction = 0.0;
-		int cont = 0;
-		for (StocksOperation stocksOperation : stocksOperationsList) {
-			totalSell += (stocksOperation.getQuantity() * stocksOperation.getValStock()) - stocksOperation.getValCost();
-			totalResultSell += stocksOperation.getValResultSell();
-
-			stocksOperation.setOperationGainIRCalculated("S");
-
-			System.out.print(stocksOperation.getCodStock());
-			System.out.print(" | ");
-			System.out.print(stocksOperation.getDatOperation());
-			System.out.print(" | ");
-			System.out.print(stocksOperation.getTypeOperation());
-			System.out.print(" | ");
-			System.out.print(stocksOperation.getQuantity());
-			System.out.print(" | ");
-			System.out.print(stocksOperation.getValStock());
-			System.out.print(" | ");
-			System.out.println(stocksOperation.getValResultSell());
-			cont += 1;
-			if (cont == 3) {
-				break;
-			}
-		}
-		totalSell = GeneralFunctions.round(totalSell, 2);
-		totalResultSell = GeneralFunctions.round(totalResultSell, 2);
+		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		
-		System.out.print("\n\nTotal Lucro sem dedução: ");
-		System.out.println(totalResultSell);
-		System.out.print("Valor Imposto: ");
-		System.out.println(GeneralFunctions.round(totalResultSell * generalInfo.TAX_IR_PERC, 2));
-		System.out.print("\n");
+		StocksOperation[] stocksOperationArr = DataManager.selectList(StocksOperation[].class, qp);
+
+        Writer writer = Files.newBufferedWriter(Paths.get("/Users/paulobarth/Downloads/acoes.csv"));
+        StatefulBeanToCsv<StocksOperation> beanToCsv = new StatefulBeanToCsvBuilder(writer).build();
+        
+        List<StocksOperation> stocksOperationList = new ArrayList<StocksOperation>();
+        for (StocksOperation item : stocksOperationArr) {
+        	stocksOperationList.add(item);
+        }
+
+        beanToCsv.write(stocksOperationList);
+
+        writer.flush();
+        writer.close();
 		
-//		Pegar vendas com prejuízo
-		System.out.println("\nVENDAS COM PREJUIZO");
-		qp.clearQuery();
-		qp.addSingleParameter("datOperation", QueryTypeFilter.LESSEQUAL, sqlPeriod + "-31", QueryTypeCondition.AND);
-		qp.addSingleParameter("typeOperation", QueryTypeFilter.EQUAL, generalInfo.STOCK_SELL, QueryTypeCondition.AND);
-		qp.addFieldParameter("valIRLossConsumed", QueryTypeFilter.GREATER, "valResultSell", QueryTypeCondition.AND);
-		
-		qp.addSingleParameter("valResultSell", QueryTypeFilter.LESS, "0", QueryTypeCondition.AND);
-		StocksOperation[] stocksOperationLossList = DataManager.selectList(StocksOperation[].class, qp);
-		double valIRconsumed = 0.0;
-		for (StocksOperation stocksOperationLoss : stocksOperationLossList) {
-
-			if (totalResultSell > Math.abs(stocksOperationLoss.getValResultSell())) {
-				valIRconsumed = stocksOperationLoss.consumeValIRLoss(stocksOperationLoss.getValResultSell());
-			} else if (totalResultSell > 0) {
-//				Tratar parcialidade
-				valIRconsumed = stocksOperationLoss.consumeValIRLoss(totalResultSell * -1);
-			}
-			totalDeduction += valIRconsumed;
-			totalResultSell += valIRconsumed;
-
-			stocksOperationLoss.setMonthIRLossConsumed(period);
-
-			System.out.print(stocksOperationLoss.getId());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getCodStock());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getDatOperation());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getTypeOperation());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getQuantity());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getValStock());
-			System.out.print(" | ");
-			System.out.print(stocksOperationLoss.getValResultSell());
-			System.out.print(" | ");			
-			System.out.print(stocksOperationLoss.getValIRLossConsumed());
-			System.out.print(" | ");
-			System.out.println(stocksOperationLoss.getMonthIRLossConsumed());
-			
-			if (totalResultSell <= 0) {
-				break;
-			}
-		}
-
-		stocksTax.setValTotalPayment(GeneralFunctions.round(totalResultSell * generalInfo.TAX_IR_PERC, 2));
-
-		System.out.print("\nPeríodo: ");
-		System.out.println(sqlPeriod);
-		System.out.print("Total das Vendas: ");
-		System.out.println(totalSell);
-		System.out.print("Total das Deduções: ");
-		System.out.println(totalDeduction);
-		System.out.print("Total Lucro: ");
-		System.out.println(totalResultSell);
-		System.out.print("Valor Imposto: ");
-		System.out.println(stocksTax.getValTotalPayment());
 	}
-	*/
 }

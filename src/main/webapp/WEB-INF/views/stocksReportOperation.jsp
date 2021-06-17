@@ -97,6 +97,9 @@ tr.Info {
 	</label> <label class="radio-inline"> <input type="radio"
 		name="filterOptVision" value="div3" onchange="myFunction(this)">Vendas
 		por mês
+	</label>
+	</label> <label class="radio-inline"> <input type="radio"
+		name="filterOptVision" value="div4" onchange="myFunction(this)">Rentabilidade
 	</label> <br>
 
 	<hr>
@@ -368,6 +371,43 @@ tr.Info {
 		</table>
 	</div>
 
+	<div id="div4" hidden="true">
+
+		<table class="table table-fit table-hover">
+
+			<thead class="table-light">
+				<th scope="col">Período</th>
+				<th scope="col">LP Acumulado</th>
+				<th scope="col">Patrimônio</th>
+				<th scope="col">Rentab Período</th>
+				<th scope="col">Rentab Acum</th>
+			</thead>  
+			<tbody>
+				<c:forEach items="${rentabilityList}" var="rentability">
+					<tr>
+						<td>${rentability.period}</td>
+						<td><div class="pull-right">
+								<fmt:formatNumber value="${rentability.periodResult}" type="number"
+									minFractionDigits="2" />
+						</td>
+						<td><div class="pull-right">
+								<fmt:formatNumber value="${rentability.maxCashInvested}" type="number"
+									minFractionDigits="2" />
+						</td>
+						<td><div class="pull-right">
+								<fmt:formatNumber value="${rentability.periodRentability}" type="number"
+									minFractionDigits="2" />%
+						</td>
+						<td><div class="pull-right">
+								<fmt:formatNumber value="${rentability.accumRentability}" type="number"
+									minFractionDigits="2" />%
+						</td>
+					</tr>
+				</c:forEach>
+			</tbody>
+		</table>
+	</div>
+
 </div>
 
 <%@ include file="../common/footer.jspf"%>
@@ -392,7 +432,7 @@ tr.Info {
 
 	function myFunction(myRadio) {
 		console.log(myRadio.value);
-		for (i = 1; i <= 3; i++) {
+		for (i = 1; i <= 4; i++) {
 			div = "div" + i;
 			result = !(div == myRadio.value);
 			document.getElementById(div).hidden = result;
