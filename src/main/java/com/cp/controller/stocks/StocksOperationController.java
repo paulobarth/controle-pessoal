@@ -143,10 +143,16 @@ public class StocksOperationController extends BaseControllerImpl {
 				qp.addBetweenParameter("datOperation", new String[] {datIni, datEnd}, QueryTypeCondition.AND);
 			}
 		}
-		
+
+		String filterStockItem = request.getParameter("filterStockItem");
+		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
-		request.setAttribute("stocksOperationList", DataManager.selectList(StocksOperation[].class, qp));
+		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
+		request.setAttribute("stocksOperationList", stocksOperationList);
+
+		Set<String> stocksList = getListOfStocksFromStocksOperation(stocksOperationList, null, true);
+		request.setAttribute("stockList", stocksList);
 	}
 
 	private void applyReportFilterMovement() {
@@ -168,8 +174,10 @@ public class StocksOperationController extends BaseControllerImpl {
 		String filterYearOperation = request.getParameter("filterYearOperation");
 		boolean filterShowOnlyOpened = Boolean.parseBoolean(request.getParameter("filterShowOnlyOpened"));
 		boolean filterStockPrice = Boolean.parseBoolean(request.getParameter("filterStockPrice"));
-		
-		showAllStocks = filterStockItem == null && filterCodPortfolio == null && filterYearOperation == null;
+
+		showAllStocks = (filterStockItem == null || ("".equals(filterStockItem))) &&
+				(filterCodPortfolio == null || ("".equals(filterCodPortfolio))) &&
+				(filterYearOperation == null || ("".equals(filterYearOperation)));
 
 		qp.addSingleNotEmptyParameter("codStock", QueryTypeFilter.EQUAL, filterStockItem, QueryTypeCondition.AND);
 		qp.addSingleNotEmptyParameter("codPortfolio", QueryTypeFilter.EQUAL, filterCodPortfolio, QueryTypeCondition.AND);
@@ -391,9 +399,6 @@ public class StocksOperationController extends BaseControllerImpl {
 				actualPrice = Double.parseDouble(stockWSData.getResults().getStock().getPrice());
 			} catch (Exception e) {
 			}
-			if (actualPrice == 0) {
-				continue;
-			}
 			newStock = null;
 			isNewStock = true;
 			for (Stocks stock : currentStocks) {
@@ -406,18 +411,21 @@ public class StocksOperationController extends BaseControllerImpl {
 			if (newStock == null) {
 				newStock = new Stocks();
 				newStock.setCodStock(codStock);
+				newStock.setActualPrice(0.0);
 			}
 			newStock.setName(stockWSData.getResults().getStock().getName());
 			newStock.setCompanyName(stockWSData.getResults().getStock().getCompany_name());
-			newStock.setActualPrice(actualPrice);
+			if (actualPrice > 0) {
+				newStock.setActualPrice(actualPrice);
+			}
 			newStock.setUpdateAt(stockWSData.getResults().getStock().getUpdated_at());
 
 			stockPriceList.add(newStock);
 
 			if (isNewStock) {
-				List<Stocks> inserStockList = new ArrayList<Stocks>();
-				inserStockList.add(newStock);
-				DataManager.insert(Stocks.class, inserStockList);
+				List<Stocks> insertStockList = new ArrayList<Stocks>();
+				insertStockList.add(newStock);
+				DataManager.insert(Stocks.class, insertStockList);
 			} else {
 				DataManager.updateId(Stocks.class, newStock);
 			}

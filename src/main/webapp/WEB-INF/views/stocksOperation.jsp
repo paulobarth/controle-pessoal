@@ -11,7 +11,19 @@
 				<div class="card card-body">
 
 					<form action="/controle-pessoal/stocksOperation.filter" method="post">
-
+						<div class="col-xs-3">
+							<label for="ex3">Ação</label> <select class="form-control"
+								name="filterStockItem" id="filterStock">
+								<option value=""
+									${filterStockItem == '' ? 'selected="selected"' : ''}>
+								</option>
+								<c:forEach items="${stockList}" var="stockItem">
+									<option value="${stockItem}"
+										${stockItem == filterStockItem ? 'selected="selected"' : ''}>
+										${stockItem}</option>
+								</c:forEach>
+							</select>
+						</div>
 						<div class="col-xs-2">
 							<label for="ex2">Data Operação Inicial</label> <input class="form-control"
 								id="datepickerfilterini" name="filterDatOperationIni"
