@@ -81,6 +81,7 @@
 							<div class="col-xs-2">
 								<label for="ex2">Data Operação</label> <input
 									class="form-control" id="datepickeroper" name="datOperation"
+									onchange="functionChangeDatOperation(this.value)"
 									type="text" value="${stocksOperation.datOperation}">
 							</div>
 							<div class="col-xs-2">
@@ -89,7 +90,7 @@
 									type="text" value="${stocksOperation.datSettlement}">
 							</div>
 							<div class="col-xs-2">
-								<label for="ex1">Quantidade</label> <input class="form-control"
+								<label for="ex1">Quantidade</label> <input class="form-control" id="quantity"
 									name="quantity" type="number"
 									value="${stocksOperation.quantity}">
 							</div>
@@ -170,6 +171,12 @@
 	function bodyLoadFunction() {
 		filterLoadPageFunction(${filterCollapsed});
 		registerLoadPageFunction(${stocksOperation.id});
+	}
+	function functionChangeDatOperation(val) {
+		if (document.getElementById("datepickersett").value == "") {
+			document.getElementById("datepickersett").value = val;
+			document.getElementById("quantity").focus();
+		}
 	}
 	$(function() {
 		$("#datepickerfilterini").datepicker();

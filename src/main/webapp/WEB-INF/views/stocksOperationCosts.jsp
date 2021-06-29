@@ -41,10 +41,9 @@
 	<form action="/controle-pessoal/stocksOperation.costsCalculation" method="post">
 
 		<div class="row">
-
 			<div class="col">
 				<div class="col-xs-3">
-					<label for="ex2">Data</label> <input
+					<label for="ex2">Data da Operação</label> <input
 						class="form-control" id="datepickerstock" name="datOperation"
 						type="text">
 				</div>
@@ -94,7 +93,16 @@
 				</div>
 			</div>
 		</div>
-
+		<br>
+		<div class="row">
+			<div class="col">
+				<div class="col-xs-3">
+					<label for="ex2">Data Liquidação</label> <input
+						class="form-control" id="datepickerliq" name="datSettlement"
+						type="text">
+				</div>
+			</div>
+		</div>
 		<br> <input class="btn btn-success" type="submit"
 			value="Aplicar">
 
@@ -111,5 +119,6 @@
 <script>
 	$(function() {
 		$("#datepickerstock").datepicker();
+		$("#datepickerliq").datepicker();
 	})
 </script>

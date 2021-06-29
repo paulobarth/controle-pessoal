@@ -149,10 +149,12 @@ public class StocksOperationController extends BaseControllerImpl {
 		qp.addOrderByOption("codStock", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		qp.addOrderByOption("datOperation", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
-		request.setAttribute("stocksOperationList", stocksOperationList);
-
-		Set<String> stocksList = getListOfStocksFromStocksOperation(stocksOperationList, null, true);
-		request.setAttribute("stockList", stocksList);
+		if (stocksOperationList != null && stocksOperationList.length > 0) {
+			request.setAttribute("stocksOperationList", stocksOperationList);
+	
+//			Set<String> stocksList = getListOfStocksFromStocksOperation(stocksOperationList, null, true);
+//			request.setAttribute("stockList", stocksList);
+		}
 	}
 
 	private void applyReportFilterMovement() {
@@ -192,6 +194,10 @@ public class StocksOperationController extends BaseControllerImpl {
 					}, QueryTypeCondition.AND);
 		}
 		StocksOperation[] stocksOperationList = DataManager.selectList(StocksOperation[].class, qp);
+		if (stocksOperationList == null ||
+			(stocksOperationList != null && stocksOperationList.length == 0)) {
+			return;
+		}
 
 		request.setAttribute("listMonthSales", makeMonthSaleView(stocksOperationList).values());
 
@@ -306,15 +312,7 @@ public class StocksOperationController extends BaseControllerImpl {
 				continue;
 			}
 
-			Double actualPrice = 0.0;
-			for (Stocks item : stocksPrices) {
-				if (item.getCodStock().equals(stock)) {
-					actualPrice = item.getActualPrice();
-					break;
-				}
-			}
-
-			addActualPosition(listActualPosition, sRPO, acumQuantity, lastMedPrice, actualPrice);
+			addActualPosition(listActualPosition, sRPO, acumQuantity, lastMedPrice, getStockPrice(stocksPrices, stock));
 
 			listSRPO.add(sRPO);
 		}
@@ -345,6 +343,17 @@ public class StocksOperationController extends BaseControllerImpl {
 		request.setAttribute("totalFuture", totalFuture);
 
 		rentabilityReport();
+	}
+
+	private double getStockPrice(Stocks[] stocksPrices, String stock) {
+		if (stocksPrices != null && stocksPrices.length > 0) {
+			for (Stocks item : stocksPrices) {
+				if (item.getCodStock().equals(stock)) {
+					return item.getActualPrice();
+				}
+			}
+		}
+		return 0.0;
 	}
 
 	private void updateStockOperationResultSell(StocksOperation stockOperation) {
@@ -401,11 +410,13 @@ public class StocksOperationController extends BaseControllerImpl {
 			}
 			newStock = null;
 			isNewStock = true;
-			for (Stocks stock : currentStocks) {
-				if (stock.getCodStock().equals(codStock)) {
-					newStock = stock;
-					isNewStock = false;
-					break;
+			if (currentStocks != null && currentStocks.length > 0) {
+				for (Stocks stock : currentStocks) {
+					if (stock.getCodStock().equals(codStock)) {
+						newStock = stock;
+						isNewStock = false;
+						break;
+					}
 				}
 			}
 			if (newStock == null) {
@@ -615,6 +626,7 @@ public class StocksOperationController extends BaseControllerImpl {
 			return;
 		}
 
+		String datSettlement = request.getParameter("datSettlement");
 		double calculatedTotalCost = 0.0;
 		double valCost = 0.0;
 		double topVal = 0.0;
@@ -624,6 +636,9 @@ public class StocksOperationController extends BaseControllerImpl {
 		for (StocksOperation stock : stocksOperationList) {
 			valCost = GeneralFunctions.truncDouble(((stock.getQuantity() * stock.getValStock()) / totalStocksValue) * costValue, 2);
 			stock.setValCost(stock.getValCost() + valCost);
+			if (datSettlement != null) {
+				stock.setDatSettlement(datSettlement);
+			}
 			DataManager.updateId(StocksOperation.class, stock);
 
 			calculatedTotalCost += valCost;
@@ -664,10 +679,12 @@ public class StocksOperationController extends BaseControllerImpl {
 		boolean found;
 		for (StocksOperation item : stocksOperationArr) {
 			found = false;
-			for (Stocks stock: stocksList) {
-				if (item.getCodStock().equals(stock.getCodStock())) {
-					found = true;
-					break;
+			if (stocksList != null && stocksList.length > 0) {
+				for (Stocks stock: stocksList) {
+					if (item.getCodStock().equals(stock.getCodStock())) {
+						found = true;
+						break;
+					}
 				}
 			}
 			if (found) {
