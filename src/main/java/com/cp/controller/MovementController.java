@@ -6,6 +6,8 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -34,6 +36,9 @@ public class MovementController extends BaseControllerImpl {
 	public void executeCallBack() throws ServletException, IOException {
 		if (option.equals("list")) {
 			filterMap.clear();
+		}
+		else if (option.equals("saveItem")) {
+			applyBudgetIdToMovementList();
 		} else if ("save,delete,cancel,shortgen,shortrest,shortnew".indexOf(option) >= 0) {
 
 			if (!filterMap.isEmpty()) {
@@ -42,11 +47,39 @@ public class MovementController extends BaseControllerImpl {
 			}
 		}
 
-		if (option.equals("list") || option.equals("filter") || option.equals("update")) {
+		if (option.equals("list") || option.equals("filter") || option.equals("update") || option.equals("saveItem")) {
 			request.getRequestDispatcher("/WEB-INF/views/movement.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/movement.list");
 		}		
+	}
+
+	private void applyBudgetIdToMovementList() {
+		Map<String, String[]> parameterMap = request.getParameterMap();
+		Set<String> keySet = parameterMap.keySet();
+		
+		for (String itemMap : keySet) {
+			String[] strings = parameterMap.get(itemMap);
+			if (strings.length > 0 && !strings[0].equals("0") && !strings[0].isEmpty()) {
+				
+				String[] movementId = itemMap.split("=");
+				String[] content = strings[0].split("-");
+				
+				Movement movement = DataManager.selectId(Movement.class, Integer.parseInt(movementId[1]));
+				movement.setGrpItem(content[0]);
+				movement.setCodItem(content[1]);
+				
+				DataManager.updateId(Movement.class, movement);
+
+				System.out.print(itemMap);
+				System.out.print(" || ");
+				System.out.println(content[0]);
+				System.out.print(" || ");
+				System.out.println(content[1]);
+			}
+		}
+		sendMapFilterParametersToRequest();
+		applyFilterMovement();
 	}
 
 	@Override

@@ -249,44 +249,67 @@ th {
 		</div>
 	</div>
 
+	<form action="/controle-pessoal/movement.saveItem"
+						method="post">
+		<div class="form-group col"
+			style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">
+			<br>
+			<input class="btn btn-success" type="submit" value="Salvar">
+		</div>
+
 	<table class="table tableFixHead">
 
 		<thead>
-			<th>ID</th>
+			<!--<th>ID</th>-->
 			<th>Descrição</th>
 			<th>Dat Movimento</th>
 			<th>Data Financeira</th>
-			<th>Origem</th>
+			<!--<th>Origem</th>-->
 			<th>Valor</th>
 			<th>Tipo Movimento</th>
 			<th>Item Orçamento</th>
 			<th>Rateio</th>
 			<th>Valor Total</th>
+			<th style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">Item</th>
 			<th>Actions</th>
 		</thead>
 		<tbody>
 			<c:forEach items="${movementList}" var="movement">
 				<tr>
-					<td>${movement.id}&nbsp;&nbsp;</td>
+					<!--<td>${movement.id}&nbsp;&nbsp;</td>-->
 					<td>${movement.description}&nbsp;&nbsp;</td>
 					<td>${movement.datMovement}&nbsp;&nbsp;</td>
 					<td>${movement.datFinancial}&nbsp;&nbsp;</td>
-					<td>${movement.origin}&nbsp;&nbsp;</td>
+					<!--<td>${movement.origin}&nbsp;&nbsp;</td>-->
 					<td>${movement.valMovement}&nbsp;&nbsp;</td>
 					<td>${movement.typeMovement}&nbsp;&nbsp;</td>
 					<td>${movement.grpItem}-${movement.codItem}&nbsp;&nbsp;</td>
 					<td>${movement.splitted == '0' ? 'False' : 'True'}&nbsp;&nbsp;</td>
 					<td>${movement.valTotal}&nbsp;&nbsp;</td>
+					<td style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">
+						<div class="col-sm">
+								<select style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}"
+									class="form-control" name="movementId=${movement.id}">
+								<option value="0">A definir</option>
+									<c:forEach items="${budgetItemList}" var="budgetItem">
+										<option value="${budgetItem.grpItem}-${budgetItem.codItem}">
+											${budgetItem.grpItem} - ${budgetItem.codItem}</option>
+									</c:forEach>
+								</select>
+							</div>					
+					&nbsp;&nbsp;</td>
 
 					<td><a class="btn btn-primary btn-xs"
-						href="/controle-pessoal/movement.update?id=${movement.id}">Alterar</a>
+						href="/controle-pessoal/movement.update?id=${movement.id}">A</a>
 						<a class="btn btn-danger btn-xs"
-						href="/controle-pessoal/movement.delete?id=${movement.id}">Delete</a>
+						href="/controle-pessoal/movement.delete?id=${movement.id}">D</a>
 					</td>
 				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+							</form>
+	
 </div>
 
 <%@ include file="../common/footer.jspf"%>

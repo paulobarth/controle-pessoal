@@ -25,7 +25,7 @@ import com.cp.controller.stocks.StocksTaxController;
 							"/budgetItem.list", 	"/budgetItem.save", 	"/budgetItem.update", 		"/budgetItem.delete", "/budgetItem.filter",
 							"/movement.list", 		"/movement.save", 		"/movement.update",			"/movement.delete",
 							"/movement.filter",		"/movement.shortgen",	"/movement.shortrest", 		"/movement.shortnew",
-							"/movement.cancel",
+							"/movement.cancel",		"/movement.saveItem",
 							"/budgetShortcut.list", "/budgetShortcut.save", "/budgetShortcut.update", 	"/budgetShortcut.delete",
 							"/budgetMovement.list", "/budgetMovement.filter",
 							"/importMovement.option",	"/importMovement.import",

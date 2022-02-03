@@ -11,9 +11,12 @@ import java.util.GregorianCalendar;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.print.DocFlavor.STRING;
+
 import org.apache.commons.math3.analysis.function.Abs;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -55,7 +58,7 @@ public class ImportDataExcel {
 		while (iterator.hasNext()) {
 			Row nextRow = iterator.next();
 
-//			System.out.println("Linha - " + nextRow.getRowNum());
+			System.out.println("Linha - " + nextRow.getRowNum());
 
 			Iterator<Cell> cellIterator = nextRow.cellIterator();
 
@@ -65,15 +68,15 @@ public class ImportDataExcel {
 			while (cellIterator.hasNext()) {
 				Cell cell = cellIterator.next();
 
-//				System.out.println("Coluna - " + cell.getColumnIndex());
+				System.out.println("Coluna - " + cell.getColumnIndex());
 
 //				Controle de início e fim da gravação dos dados
 				if (cell.getColumnIndex() == 0) {
-					if (cell.getStringCellValue().contains(storeAfterLine)) {
+					if (!startSaving && cell.getStringCellValue().contains(storeAfterLine)) {
 						startSaving = true;
 						continue lineBlock;
 					}
-					if (cell.getStringCellValue().contains("TOTAL")) {
+					if (!isTotalLine && cell.getStringCellValue().contains("TOTAL")) {
 						isTotalLine = true;
 						continue cellBlock;
 					}
@@ -82,14 +85,10 @@ public class ImportDataExcel {
 				if (isTotalLine) {
 					switch (cell.getColumnIndex()) {
 					case 4: //Valor Crédito
-						if (!isCellEmpty(cell)) {
-							planTotalCredit = Double.parseDouble(getCellContent(cell, NUMERIC));
-						}
+						planTotalCredit = Double.parseDouble(getCellContent(cell, NUMERIC));
 						break;
 					case 5: //Valor Débito
-						if (!isCellEmpty(cell)) {
-							planTotalDebit = Double.parseDouble(getCellContent(cell, NUMERIC));
-						}
+						planTotalDebit = Double.parseDouble(getCellContent(cell, NUMERIC));
 						break lineBlock;				
 					default:
 						break;
@@ -103,6 +102,7 @@ public class ImportDataExcel {
 
 				switch (cell.getColumnIndex()) {
 				case 0: //Data
+					System.out.println("Data = " + cell.getStringCellValue());
 					movement.setDatMovement(GeneralFunctions.convertDateBRToUS(cell.getStringCellValue()));
 					movement.setDatFinancial(movement.getDatMovement());
 				 	break;
@@ -111,14 +111,17 @@ public class ImportDataExcel {
 						continue lineBlock;
 					}
 					movement.setDescription(cell.getStringCellValue());
+					System.out.print("Descrição - " + movement.getDescription());
 					break;
 				case 2: //Documento
-					movement.setDocumentNumber(cell.getStringCellValue());
+					movement.setDocumentNumber(getCellContent(cell));
 					break;
 				case 4: //Valor Crédito
 				case 5: //Valor Débito
-					if (!isCellEmpty(cell)) {
-						movement.setValMovement(getCellContent(cell, NUMERIC));
+					String valMovement = getCellContent(cell, NUMERIC);
+					if (!valMovement.isEmpty()) {
+						System.out.println("Valor String = " + valMovement);
+						movement.setValMovement(valMovement);
 						if (movement.getValMovement() < 0) {
 							movement.setTypeMovement("Despesa");
 							movement.setValMovement(movement.getValMovement() * -1);
@@ -135,8 +138,8 @@ public class ImportDataExcel {
 				}
 			}
 
-//			System.out.print("aaa - " + movement.getDescription());
-//			System.out.println(" - " + movement.getValMovement());
+			System.out.println("   #####      TOTAL - " + totalCredito);
+			System.out.println("");
 			movement.setValTotal(movement.getValMovement());
 			movement.setOrigin(origin);
 			
@@ -269,10 +272,13 @@ public class ImportDataExcel {
     	}
 	}
 
-	private static boolean isCellEmpty(Cell cell) {
-		return cell.getStringCellValue() == null || cell.getStringCellValue().isEmpty();
+	private static String getCellContent (Cell cell, String specialFormat) {
+		String content = getCellContent(cell);
+		if (cell.getCellType().equals(CellType.STRING) && specialFormat.equals(NUMERIC)) {
+			return content.replace(".", "").replace(",", ".");			
+		}
+		return content;
 	}
-
 
 	private static String getCellContent (Cell cell) {
 		
@@ -281,33 +287,26 @@ public class ImportDataExcel {
 		//String teste = cell.getCellType().toString();
 		
         //Reading example
-        switch (cell.getCellType()) {
-            case STRING:
-            	content = cell.getStringCellValue();
-                break;
-            case BOOLEAN:
-            	content = String.valueOf(cell.getBooleanCellValue());
-                break;
-            case NUMERIC:
-            	content = String.valueOf(cell.getNumericCellValue());
-                break;
-			default:
-				break;
-        }
+		try {
+	        switch (cell.getCellType()) {
+	            case STRING:
+	            	content = cell.getStringCellValue();
+	                break;
+	            case BOOLEAN:
+	            	content = String.valueOf(cell.getBooleanCellValue());
+	                break;
+	            case NUMERIC:
+	            	content = String.valueOf(cell.getNumericCellValue());
+	                break;
+				default:
+					break;
+	        }
+		} catch (Exception e) {
+			content = cell.getStringCellValue();
+			System.out.println("Exception: " + e.getMessage());
+		}
         
         return content;
-	}
-
-	private static String getCellContent (Cell cell, String specialFormat) {
-		String content = getCellContent(cell);
-		switch (specialFormat) {
-		case NUMERIC:
-			return content.replace(".", "").replace(",", ".");
-
-		default:
-			break;
-		}
-		return content;
 	}
 
 	private static String calculateDatFinancial(String description, String datMovement) {

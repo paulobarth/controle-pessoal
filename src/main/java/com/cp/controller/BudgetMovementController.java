@@ -56,7 +56,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 			sqlDateIni = "2021-01-01";
 		}
 		if ("".equals(sqlDateEnd)) {
-			sqlDateEnd = "2021-12-31";
+			sqlDateEnd = "2021-01-31";
 		}
 		
 		List<String> monthList = new ArrayList<String>();
@@ -145,45 +145,42 @@ public class BudgetMovementController extends BaseControllerImpl {
 				}
 			}
 		}
-		
-		String typeGrpItem = "";
-		Map<Integer, String> budgetList = returnBudgetList();
-		
+
 		ArrayList<BudgetMovement> bM = new ArrayList<BudgetMovement>();
-		for (int pos = 0; pos < budgetItemList.length; pos++) {
 
-			BudgetItem budgetItem = budgetItemList[pos];
+		Map<String, Budget> budgetList = returnBudgetList(budgetItemList);
+		for (String key : budgetList.keySet()) {
+			Budget budget = budgetList.get(key);
 
-			if (!typeGrpItem.isEmpty() && !typeGrpItem.equals(budgetItem.getGrpItem()) ) {
-				BudgetMovement aaa = new BudgetMovement(11);
-				aaa.setCodItem("TOTAL " + budgetList.get(budgetItem.getIdBudget()));
-				aaa.setGrpItem(typeGrpItem);
+			Double totalPrevisto = 0.00;
+			BudgetMovement aaa = new BudgetMovement(qtdMonths);
+			for (int pos = 0; pos < budgetItemList.length; pos++) {
+				BudgetItem budgetItem = budgetItemList[pos];
+				String budgetItemKey = budgetItem.getGrpItem() + String.valueOf(budgetItem.getIdBudget());
+				if (!budgetItemKey.equals(key)) {
+					continue;
+				}
+				
+				if (aaa.getCodItem() == null) {
+					aaa.setCodItem("TOTAL " + budget.getCodBudget());
+					aaa.setGrpItem(budgetItem.getGrpItem());
+				}
 
-				Double totalPrevisto = 0.00;
-				for (BudgetItem budgetItemAcumulate : budgetItemList) {
-					
-					if (!budgetItemAcumulate.getGrpItem().equals(typeGrpItem)) {
-						continue;
+				BudgetMovement budgetMovement = budgetMovList.get(budgetItem.getCodItem());
+
+				try {
+					for (int posMov = 0; posMov < budgetMovement.getValMovement().length; posMov++) {
+						aaa.setValMovement(budgetItem.getGrpItem(), posMov, budgetMovement.getValMovement()[posMov].doubleValue());
 					}
-
-					BudgetMovement budgetMovement = budgetMovList.get(budgetItemAcumulate.getCodItem());
-
-					try {
-						for (int posMov = 0; posMov < budgetMovement.getValMovement().length; posMov++) {
-							aaa.setValMovement(typeGrpItem, posMov, budgetMovement.getValMovement()[posMov].doubleValue());
-						}
-					} catch (Exception e) {
-					}
-					totalPrevisto += budgetMovement.getValItem();
-				}		
-				aaa.setValItem(totalPrevisto);
-				bM.add(aaa);
+				} catch (Exception e) {
+				}
+				totalPrevisto += budgetMovement.getValItem();
+				bM.add(budgetMovList.get(budgetItem.getCodItem()));
 			}
-			typeGrpItem = budgetItem.getGrpItem();
-			
-			bM.add(budgetMovList.get(budgetItem.getCodItem()));
+			aaa.setValItem(totalPrevisto);
+			bM.add(aaa);
 		}
-		
+
 		for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
 			if (bmUnrecDespesa.getValMovement()[monthCont].compareTo(new BigDecimal(0)) != 0) {
 				bM.add(bmUnrecDespesa);
@@ -210,6 +207,20 @@ public class BudgetMovementController extends BaseControllerImpl {
 //		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
 //		request.setAttribute("filterCollapsed", "true");
 		request.setAttribute("monthList", monthList);
+	}
+
+	private static Map<String, Budget> returnBudgetList(BudgetItem[] budgetItemList) {
+		HashMap<Integer, Budget> budgetMap = new HashMap<Integer, Budget>();
+		Budget[] budgetList  = DataManager.selectList(Budget[].class);		
+		for (int pos = 0; pos < budgetList.length; pos++) {
+			budgetMap.put(budgetList[pos].getId(), budgetList[pos]);	
+		}
+		HashMap<String, Budget> budgetItemMap = new HashMap<String, Budget>();
+		for (BudgetItem budgetItem : budgetItemList) {
+			Budget budget = budgetMap.get(budgetItem.getIdBudget());
+			budgetItemMap.put(budgetItem.getGrpItem() + String.valueOf(budget.getId()), budget);
+		}
+		return budgetItemMap;
 	}
 
 	private static Map<Integer, String> returnBudgetList() {
