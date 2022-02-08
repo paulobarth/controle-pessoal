@@ -20,8 +20,9 @@ import com.sun.org.apache.xpath.internal.WhitespaceStrippingElementMatcher;
 
 public class SQLUtil {
 
-	private static String sql = "";
-	private static String whereParam = "";
+	private static StringBuilder sqlBuilder = new StringBuilder();
+	private static StringBuilder whereParamBuilder = new StringBuilder();
+//	private static String whereParam = "";
 	private static Gson gson = new Gson();
 
 	public static String selectAllCommand(final Class clazz, String whereClause) {
@@ -48,7 +49,7 @@ public class SQLUtil {
 			sqlContentAdd(whereClause);
 		}
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 //	private static <T> List<String[2]> getTablesFromClass(Class clazz) {
@@ -86,7 +87,7 @@ public class SQLUtil {
 		sqlContentAdd(" WHERE id=");
 		sqlContentAdd(id);
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String insertCommand(Object obj, Class clazz, int topId) {
@@ -163,7 +164,7 @@ public class SQLUtil {
 			count++;
 		}
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String updateIdCommand(JsonObject jObj, Class clazz) {
@@ -222,7 +223,7 @@ public class SQLUtil {
 			sqlContentAdd(whereClause);
 		}
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String deleteCommand(Class clazz) {
@@ -232,7 +233,7 @@ public class SQLUtil {
 		sqlContentAdd("DELETE FROM ");
 		sqlContentAdd(getTableName(clazz));
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String deleteCommand(JsonObject jObj, Class clazz) {
@@ -274,7 +275,7 @@ public class SQLUtil {
 
 		}
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String deleteIdCommand(Class clazz, int id) {
@@ -286,7 +287,7 @@ public class SQLUtil {
 		sqlContentAdd(" WHERE id=");
 		sqlContentAdd(id);
 
-		return sql;
+		return sqlBuilder.toString();
 	}
 
 	public static String selectMaxIdCommand(final Class clazz) {
@@ -295,7 +296,7 @@ public class SQLUtil {
 		sqlContentAdd("SELECT MAX(id) FROM ");
 		sqlContentAdd(getTableName(clazz));
 
-		return sql;
+		return sqlBuilder.toString();
 
 	}
 
@@ -305,20 +306,20 @@ public class SQLUtil {
 	}
 
 	private static void sqlContentClear() {
-		sql = "";
+		sqlBuilder.setLength(0);
 	}
 
 	private static void sqlContentAdd(String content) {
-		sql += content;
+		sqlBuilder.append(content);
 	}
 
 	private static void sqlContentAdd(int content) {
-		sql += content;
+		sqlBuilder.append(content);
 	}
 
 	public static String getSQLQuery(QueryParameter qp) {
 
-		String orderParam = "";
+		StringBuilder orderParamBuilder = new StringBuilder();
 		whereParamClear();
 		
 		if (qp == null || qp.isEmpty()) {
@@ -329,18 +330,20 @@ public class SQLUtil {
 
 			if (option.getFilter().equals(QueryTypeFilter.ORDERBY)) {
 				
-				if (orderParam.isEmpty()) {
-					orderParam = "";
-					orderParam += " " + QueryTypeFilter.ORDERBY.getSql();
+				if (orderParamBuilder.length() == 0) {
+					orderParamBuilder.append(" ");
+					orderParamBuilder.append(QueryTypeFilter.ORDERBY.getSql());
 				} else {
-					orderParam += ",";
+					orderParamBuilder.append(",");
 				}
 
-				orderParam += " " + option.getField();
-				orderParam += " " + option.getCondition().getSql();
+				orderParamBuilder.append(" ");
+				orderParamBuilder.append(option.getField());
+				orderParamBuilder.append(" ");
+				orderParamBuilder.append(option.getCondition().getSql());
 			} else {
 
-				if (!whereParam.isEmpty()) {
+				if (whereParamBuilder.length() > 0) {
 					whereParamAdd(option.getCondition().getSql());
 				}
 
@@ -377,29 +380,29 @@ public class SQLUtil {
 			}
 		}
 
-		if (!orderParam.isEmpty()) {
-			if (whereParam.isEmpty()) {
+		if (orderParamBuilder.length() > 0) {
+			if (whereParamBuilder.length() == 0) {
 				whereParamAdd(" 1 = 1 ");
 			}
-			whereParam += orderParam;
+			whereParamBuilder.append(orderParamBuilder.toString());
 		}
 
-		return whereParam;
+		return whereParamBuilder.toString();
 	}
 
 	private static void whereParamClear() {
-		whereParam = "";
+		whereParamBuilder.setLength(0);
 	}
 
 	private static void whereParamAdd(String clause) {
-		whereParam += " ";
-		whereParam += clause;
+		whereParamBuilder.append(" ");
+		whereParamBuilder.append(clause);
 	}
 
 	private static void whereParamAddQuoted(String clause) {
-		whereParam += " '";
-		whereParam += clause;
-		whereParam += "'";
+		whereParamBuilder.append(" '");
+		whereParamBuilder.append(clause);
+		whereParamBuilder.append("'");
 	}
 
 }

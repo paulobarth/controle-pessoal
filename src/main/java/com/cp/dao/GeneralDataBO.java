@@ -34,8 +34,11 @@ public class GeneralDataBO {
 
 		String todayDate = GeneralFunctions.getTodaySqlDate();
 
-		Budget[] budgetList  = DataManager.selectList(Budget[].class, "'" + todayDate + "' BETWEEN datIni AND datEnd ");
-
+		Budget[] budgetList  = DataManager.selectList(Budget[].class,
+				"datIni <= '" + todayDate + "' " +
+				" AND " +
+				"datEnd >= '" + todayDate + "'");
+		
 		QueryParameter qp = new QueryParameter();
 		for (Budget budget : budgetList) {
 			qp.addSingleParameter("idBudget", QueryTypeFilter.EQUAL, budget.getId(), QueryTypeCondition.OR);

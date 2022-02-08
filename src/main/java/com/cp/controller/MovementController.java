@@ -91,7 +91,7 @@ public class MovementController extends BaseControllerImpl {
 		QueryParameter qp = new QueryParameter();
 		qp.addBetweenParameter("datMovement",
 				new String[] { GeneralFunctions.stringDatetoSql("01/01/2021"),
-						GeneralFunctions.stringDatetoSql("12/31/2021") },
+						GeneralFunctions.stringDatetoSql("01/01/2021") },
 				QueryTypeCondition.AND);
 
 		Movement[] movementList = DataManager.selectList(Movement[].class, qp);

@@ -2,6 +2,7 @@ package com.cp.controller;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +57,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 			sqlDateIni = "2021-01-01";
 		}
 		if ("".equals(sqlDateEnd)) {
-			sqlDateEnd = "2021-01-31";
+			sqlDateEnd = "2021-12-31";
 		}
 		
 		List<String> monthList = new ArrayList<String>();
@@ -68,7 +69,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 		for (int cont = monthIni; cont <= monthEnd; cont ++) {
 			monthList.add("Mes " + String.valueOf(cont));
 		}
-		
+
 		BudgetMovement bmUnrecReceita = new BudgetMovement(qtdMonths);
 		bmUnrecReceita.setId(9998);
 		bmUnrecReceita.setGrpItem("Receita");
@@ -103,21 +104,27 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 			budgetMovList.put(budgetItem.getCodItem(), budgetMovement);
 		}
-
 		String datIni = getDate(sqlDateIni, "ini");
 		String datEnd = getDate(sqlDateEnd, "end");
 		QueryParameter qpMovement = new QueryParameter();
-		qpMovement.addBetweenParameter("datMovement",
-				new String[] {datIni, datEnd},
-				QueryTypeCondition.AND);
-		qpMovement.addOrderByOption("description", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
+//		qpMovement.addBetweenParameter("datMovement",
+//				new String[] {datIni, datEnd},
+//				QueryTypeCondition.AND);
+		qpMovement.addSingleParameter("datMovement", QueryTypeFilter.GREATEREQUAL, datIni, QueryTypeCondition.AND);
+		qpMovement.addSingleParameter("datMovement", QueryTypeFilter.LESSEQUAL, datEnd, QueryTypeCondition.AND);
+//		qpMovement.addOrderByOption("description", QueryTypeFilter.ORDERBY, QueryTypeCondition.ASC);
 
 		String filterOrigin = request.getParameter("filterOrigin");
 		if (filterOrigin != null && !"".equals(filterOrigin)) {
 			qpMovement.addSingleParameter("origin", QueryTypeFilter.EQUAL, filterOrigin, QueryTypeCondition.AND);
 		}
-		
+
 		Movement[] movementList = DataManager.selectList(Movement[].class, qpMovement);
+
+//		Movement[] movementList = DataManager.selectList(Movement[].class,
+//				"datMovement >= '" + datIni + "' " +
+//				" AND " +
+//				"datMovement <= '" + datEnd + "'");
 
 		for (int pos = 0; pos < movementList.length; pos++) {
 			
@@ -193,7 +200,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 				break;
 			}
 		}
-		
+
 		for (BudgetMovement teste : bM) {
 			
 			for (int monthCont = 0; monthCont <= qtdMonths; monthCont++) {
@@ -207,6 +214,7 @@ public class BudgetMovementController extends BaseControllerImpl {
 //		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
 //		request.setAttribute("filterCollapsed", "true");
 		request.setAttribute("monthList", monthList);
+
 	}
 
 	private static Map<String, Budget> returnBudgetList(BudgetItem[] budgetItemList) {

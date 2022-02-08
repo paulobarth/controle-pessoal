@@ -83,68 +83,66 @@ public class DataManager {
 
 	private static String executeSelect(Class clazz, String sql) {
 
-		String json = "";
-		String fieldName = "";
+		String fieldName;
+		StringBuilder jsonBuilder = new StringBuilder();
+		boolean isFirstColumn;
+		Field[] fields = clazz.getDeclaredFields();
+		int countReg = 0;
 
+		System.out.println();
+		System.out.println(sql);
+		GeneralFunctions.showCurrentTimestamp(1001);
 		if (connect()) {
+			GeneralFunctions.showCurrentTimestamp(1002);
 
 			try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-
+				GeneralFunctions.showCurrentTimestamp(1003);
+				
 				while (rs.next()) {
+					
+					countReg++;
 
-					if (!json.isEmpty()) {
-						json += ",";
+					if (jsonBuilder.length() != 0) {
+						jsonBuilder.append(",");
 					}
 
-					json += "{";
+					jsonBuilder.append("{");
 
-					Field[] fields = clazz.getDeclaredFields();
-
-					int qtdeAdd = 0;
+					isFirstColumn = true;
 					for (int i = 0; i < fields.length; i++) {
 
 						try {
 
 							fieldName = fields[i].getName();
 
-							String fieldContent = rs.getString(fieldName);
-
-							if (qtdeAdd > 0) {
-								json += ",";
+							if (!isFirstColumn) {
+								jsonBuilder.append(",");
+							} else {
+								isFirstColumn = false;
 							}
 
-							json += addJsonContent(fieldName, fieldContent);
-							qtdeAdd += 1;
-						} catch (SQLException e) {
+							jsonBuilder.append("\"");
+							jsonBuilder.append(fieldName);
+							jsonBuilder.append("\"");
+							jsonBuilder.append(":");
+							jsonBuilder.append("\"");
+							jsonBuilder.append(rs.getString(fieldName));
+							jsonBuilder.append("\"");
+						} catch (Exception e) {
 							GeneralFunctions.showLog("ERROR SELECT: " + e.getMessage());
 						}
 					}
-
-					json += "}";
+					jsonBuilder.append("}");
 				}
+				GeneralFunctions.showCurrentTimestamp(1004);
+				System.out.println(countReg + " registros.");
 			} catch (SQLException e) {
 				GeneralFunctions.showLog(e.getMessage());
 			}
 
 			disconnect();
 		}
-		return json;
-	}
-
-	private static String addJsonContent(String name, String content) {
-		String newContent = "";
-
-		newContent = "\"";
-		newContent += name;
-		newContent += "\"";
-
-		newContent += ":";
-
-		newContent += "\"";
-		newContent += content;
-		newContent += "\"";
-
-		return newContent;
+		return jsonBuilder.toString();
 	}
 
 	public static void insert(final Class clazz, List obj) {

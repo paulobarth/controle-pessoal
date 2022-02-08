@@ -2,6 +2,7 @@ package com.cp.fwk.util;
 
 import java.math.RoundingMode;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
@@ -127,4 +128,16 @@ public class GeneralFunctions {
 		df.setRoundingMode(RoundingMode.HALF_UP);
 		return Double.valueOf(df.format(d));
 	}
+	
+	private static long lastTime = 0;
+	public static void showCurrentTimestamp(int i) {
+		long now = System.currentTimeMillis();
+		if (lastTime == 0) {
+			lastTime = now;
+		}
+		System.out.print("Step: " + i + " - " + new Timestamp(now));
+		System.out.println(" - " + ((now - lastTime)) + " segundos após.");
+		lastTime = now;
+	}
+
 }
