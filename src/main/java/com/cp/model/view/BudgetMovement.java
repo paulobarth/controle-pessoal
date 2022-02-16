@@ -2,6 +2,7 @@ package com.cp.model.view;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import com.cp.model.Movement;
@@ -63,9 +64,8 @@ public class BudgetMovement {
 	}
 
 	public void setValMovement(String typeMovement, int month, Double valMovement) {
-
 		BigDecimal newValue = new BigDecimal(Double.toString(valMovement));
-
+		
 		if (typeMovement.equals("Receita")) {
 			this.valMovement[month] = this.valMovement[month].add(newValue);
 		} else if (typeMovement.equals("Despesa")) {
@@ -74,7 +74,6 @@ public class BudgetMovement {
 	}
 
 	public void negateValMovement(int month) {
-
 		if (this.valMovement[month].doubleValue() < 0) {
 
 			BigDecimal newValue = new BigDecimal(this.valMovement[month].negate().toString());
@@ -88,7 +87,7 @@ public class BudgetMovement {
 		return listMovement;
 	}
 
-	public void setMovement(Movement movement) {
+	public void setMovement(Movement movement, HashMap<Integer, Integer> monthReference) {
 
 		String source;
 		String target;
@@ -100,7 +99,7 @@ public class BudgetMovement {
 
 		if (mList.length == 3) {
 
-			int month = Integer.parseInt(mList[0]) - 1;
+			int month = monthReference.get(Integer.parseInt(mList[0]));
 			int day = Integer.parseInt(mList[1]);
 
 			for (BudgetMovementDetail item : this.listMovement) {

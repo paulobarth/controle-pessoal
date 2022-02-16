@@ -35,13 +35,6 @@ public class BudgetMovementController extends BaseControllerImpl {
 		applyFilterMovement();
 		super.list();
 	}
-	
-//	@Override
-//	protected void filter() {
-//		selectByPeriod(request, GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementIni")),
-//				GeneralFunctions.stringDatetoSql(request.getParameter("filterDatMovementEnd"))
-//				);
-//	}
 
 	@Override
 	protected void applyFilterMovement() {
@@ -66,8 +59,12 @@ public class BudgetMovementController extends BaseControllerImpl {
 		int monthIni = Integer.valueOf(getDate(sqlDateIni, "month"));
 		int monthEnd = Integer.valueOf(getDate(sqlDateEnd, "month"));
 		int qtdMonths = monthEnd - monthIni;
+		int ref = 0;
+		HashMap<Integer, Integer> monthReference = new HashMap<Integer, Integer>();
 		for (int cont = monthIni; cont <= monthEnd; cont ++) {
 			monthList.add("Mes " + String.valueOf(cont));
+			monthReference.put(cont, ref);
+			ref++;
 		}
 
 		BudgetMovement bmUnrecReceita = new BudgetMovement(qtdMonths);
@@ -121,23 +118,17 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 		Movement[] movementList = DataManager.selectList(Movement[].class, qpMovement);
 
-//		Movement[] movementList = DataManager.selectList(Movement[].class,
-//				"datMovement >= '" + datIni + "' " +
-//				" AND " +
-//				"datMovement <= '" + datEnd + "'");
-
 		for (int pos = 0; pos < movementList.length; pos++) {
 			
 			Movement movement = movementList[pos];
-			month = Integer.parseInt(GeneralFunctions.getMonthOfDate(movement.getDatMovement()));
-			month--;
+			month = monthReference.get(Integer.parseInt(GeneralFunctions.getMonthOfDate(movement.getDatMovement())));
 			
 			try {
 				
 				BudgetMovement budgetMovement = budgetMovList.get(movement.getCodItem());
 
 				budgetMovement.setValMovement(movement.getTypeMovement(), month, movement.getValMovement());
-				budgetMovement.setMovement(movement);
+				budgetMovement.setMovement(movement, monthReference);
 
 				budgetMovList.put(movement.getCodItem(), budgetMovement);
 
@@ -145,10 +136,10 @@ public class BudgetMovementController extends BaseControllerImpl {
 				
 				if (movement.getTypeMovement().equals("Receita")) {
 					bmUnrecReceita.setValMovement(movement.getTypeMovement(), month, movement.getValMovement());
-					bmUnrecReceita.setMovement(movement);
+					bmUnrecReceita.setMovement(movement, monthReference);
 				} else if (movement.getTypeMovement().equals("Despesa")) {
 					bmUnrecDespesa.setValMovement(movement.getTypeMovement(), month, movement.getValMovement());
-					bmUnrecDespesa.setMovement(movement);
+					bmUnrecDespesa.setMovement(movement, monthReference);
 				}
 			}
 		}
@@ -210,8 +201,8 @@ public class BudgetMovementController extends BaseControllerImpl {
 
 		request.setAttribute("movementList", movementList);
 		request.setAttribute("budgetMovList", bM);
-//		request.setAttribute("filterDatMovementIni", GeneralFunctions.sqlDateToString(sqlDateIni));
-//		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
+		request.setAttribute("filterDatMovementIni", GeneralFunctions.sqlDateToString(sqlDateIni));
+		request.setAttribute("filterDatMovementEnd", GeneralFunctions.sqlDateToString(sqlDateEnd));
 //		request.setAttribute("filterCollapsed", "true");
 		request.setAttribute("monthList", monthList);
 
