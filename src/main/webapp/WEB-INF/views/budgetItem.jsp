@@ -65,6 +65,21 @@
 								<label for="ex2">Dia Vencto</label> <input class="form-control"
 									name="dayVencto" type="text" value="${budgetItem.dayVencto}">
 							</div>
+							<!-- new Budget ITEM -->
+							<div class="col-xs-3">
+								<label for="ex3">Novo Orçamento</label> <select class="form-control"
+									name="newBudgetId">
+									<option value="0" selected="selected">Nenhum</option>
+									<c:forEach items="${newBudgetList}" var="newBudgetList">
+										<option value="${newBudgetList.id}">
+											${newBudgetList.codBudget}</option>
+									</c:forEach>
+								</select>
+							</div>
+							
+							
+							
+							
 						</div>
 
 						<input class="btn btn-success" type="submit" value="Salvar">
