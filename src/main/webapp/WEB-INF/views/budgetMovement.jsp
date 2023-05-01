@@ -98,8 +98,10 @@ th {
 		</div>
 	</div>
 
+	<br>
+	<h3>Despesas e Receitas</h3>
 
-	<table class="table table-hover tableFixHead">
+	<table class="table table-hover">
 		<thead>
 			<th>Grupo</th>
 			<th>Item Orçamento</th>
@@ -127,9 +129,85 @@ th {
 
 					<c:forEach items="${budgetMov.valMovement}" var="valMov">
 						<td
-							class="${budgetMov.valItem < valMov ? budgetMov.grpItem : 'None'}">
+							class="${budgetMov.grpItem == 'Despesa' && valMov > 0 ? 'Receita' :
+							budgetMov.valItem < Math.abs(valMov.floatValue()) ? budgetMov.grpItem : 'None'}">
+							<%-- class="${budgetMov.grpItem = 'Despesa'   ? 'Receita' : 'Despesa'"> --%>
+							<%-- budgetMov.valItem < valMov ? budgetMov.grpItem : 'None'}"> --%>
 							<div class="pull-right">
-								<fmt:formatNumber value="${valMov}" type="number"
+								<fmt:formatNumber value="${Math.abs(valMov.floatValue())}" type="number"
+									minFractionDigits="2" />
+							</div>
+						</td>
+					</c:forEach>
+				</tr>
+
+				<c:forEach items="${budgetMov.listMovement}" var="movementDetail">
+
+					<tr class="collapse multi-collapse collapseItem${budgetMov.id}">
+
+						<td colspan="3" class="InfoDescription">
+							<div>
+								<small><em>&nbsp;&nbsp;${movementDetail.description}</em></small>
+							</div>
+						</td>
+
+						<c:forEach items="${movementDetail.listValue}" var="valMovDetail">
+							<td class="Info${valMovDetail.typeMovement}">
+								<div class="pull-right">
+									<small class="text-muted"
+										style="display:${valMovDetail.day == 0 ? 'none' : ''}">
+										(${valMovDetail.day})</small>
+									<em><fmt:formatNumber
+											value="${valMovDetail.valMovement}" type="number"
+											minFractionDigits="2" /></em>
+											
+								</div>
+							</td>
+						</c:forEach>
+					</tr>
+				</c:forEach>
+
+			</c:forEach>
+		</tbody>
+	</table>
+	
+	<br>
+	<h3>Extras</h3>
+
+	<table class="table table-hover">
+		<thead>
+			<th>Grupo</th>
+			<th>Item Orçamento</th>
+			<th><div class="pull-right">Valor
+					Previsto</div></th>
+			<c:forEach items="${monthList}" var="month">
+				<th><div class="pull-right">${month}&nbsp;&nbsp;</div></th>
+			</c:forEach>
+		</thead>
+		<tbody>
+			<c:forEach items="${budgetMovExtraList}" var="budgetMov">
+
+				<tr data-toggle="collapse"
+					data-target=".collapseItem${budgetMov.id}" aria-expanded="true"
+					class="${fn:substring(budgetMov.codItem, 0, 5) == 'TOTAL' ? 'table-secondary' : 'None'}">
+
+					<td>${budgetMov.grpItem}</td>
+					<td>${budgetMov.codItem}</td>
+					<td>
+						<div class="pull-right">
+							<fmt:formatNumber value="${budgetMov.valItem}" type="number"
+								minFractionDigits="2" />
+						</div>
+					</td>
+
+					<c:forEach items="${budgetMov.valMovement}" var="valMov">
+						<td
+							class="${budgetMov.grpItem == 'Despesa' && valMov > 0 ? 'Receita' :
+							budgetMov.valItem < Math.abs(valMov.floatValue()) ? budgetMov.grpItem : 'None'}">
+							<%-- class="${budgetMov.grpItem = 'Despesa'   ? 'Receita' : 'Despesa'"> --%>
+							<%-- budgetMov.valItem < valMov ? budgetMov.grpItem : 'None'}"> --%>
+							<div class="pull-right">
+								<fmt:formatNumber value="${Math.abs(valMov.floatValue())}" type="number"
 									minFractionDigits="2" />
 							</div>
 						</td>

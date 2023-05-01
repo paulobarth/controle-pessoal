@@ -71,6 +71,8 @@
 						href="/controle-pessoal/budget.update?id=${budget.id}">Alterar</a>
 						<a class="btn btn-danger btn-xs"
 						href="/controle-pessoal/budget.delete?id=${budget.id}">Delete</a>
+						<a class="btn btn-success btn-xs"
+						href="/controle-pessoal/budget.duplicate?id=${budget.id}">Duplicar</a>
 					</td>
 				</tr>
 			</c:forEach>

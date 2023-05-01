@@ -341,16 +341,16 @@ public class StocksTaxController extends BaseControllerImpl {
 			saveCalculatedData(stocksTax, stocksTaxOperationList, stocksOperationLossList);
 		}
 
-		System.out.print("\nPeríodo: ");
-		System.out.println(sqlPeriod);
-		System.out.print("Total das Vendas: ");
-		System.out.println(totalSell);
-		System.out.print("Total das Deduções: ");
-		System.out.println(totalDeduction);
-		System.out.print("Total Lucro: ");
-		System.out.println(resultWithDeduction);
-		System.out.print("Valor Imposto: ");
-		System.out.println(stocksTax.getValTotalPayment());
+//		System.out.print("\nPeríodo: ");
+//		System.out.println(sqlPeriod);
+//		System.out.print("Total das Vendas: ");
+//		System.out.println(totalSell);
+//		System.out.print("Total das Deduções: ");
+//		System.out.println(totalDeduction);
+//		System.out.print("Total Lucro: ");
+//		System.out.println(resultWithDeduction);
+//		System.out.print("Valor Imposto: ");
+//		System.out.println(stocksTax.getValTotalPayment());
 		
 		taxReport.setId(stocksTax.getId());
 		taxReport.setMonth(stocksTax.getMonth());

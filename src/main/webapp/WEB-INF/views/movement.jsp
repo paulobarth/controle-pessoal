@@ -130,8 +130,11 @@ th {
 						</div>
 						<div class="form-group row">
 							<input class="btn btn-success" type="submit" value="Salvar">
-							<input class="btn btn-warning" type="reset"> <a
-								class="btn btn-danger"
+							<input class="btn btn-warning" type="reset">
+							<a class="btn btn-success"
+								style="display: ${movement.id == null ? 'none' : ''}"
+								href="/controle-pessoal/movement.split?id=${movement.id}">Split </a>
+							<a class="btn btn-danger"
 								style="display: ${movement.id == null ? 'none' : ''}"
 								href="/controle-pessoal/movement.cancel">Cancelar </a>
 						</div>
@@ -165,8 +168,8 @@ th {
 								value="${filterDescription}">
 						</div>
 
-						<div class="col-xs-2">
-							<label for="ex2">Tipo Movimento</label> <select
+						<div class="col-xs-1">
+							<label for="ex1">Tipo</label> <select
 								class="form-control" name="filterTypeMovement">
 								<option value=""
 									${filterTypeMovement == '' ? 'selected="selected"' : ''}>
@@ -179,8 +182,8 @@ th {
 									Receita</option>
 							</select>
 						</div>
-						<div class="col-xs-3">
-							<label for="ex3">Origem</label> <select class="form-control"
+						<div class="col-xs-2">
+							<label for="ex2">Origem</label> <select class="form-control"
 								name="filterOrigin">
 								<option value=""
 									${filterOrigin == '' ? 'selected="selected"' : ''}></option>
@@ -191,8 +194,8 @@ th {
 								</c:forEach>
 							</select>
 						</div>
-						<div class="col-xs-3">
-							<label for="ex3">Item Orçamento</label> <select
+						<div class="col-xs-2">
+							<label for="ex2">Item Orçamento</label> <select
 								class="form-control" name="filterBudgetItem" id="filterBudget">
 								<option value=""
 									${filterBudgetItem == '' ? 'selected="selected"' : ''}>
@@ -211,6 +214,14 @@ th {
 						<div class="form-group col">
 							<input class="btn btn-success" type="submit" value="Filtrar">
 							<input class="btn btn-warning" type="reset">
+						</div>
+						<br>
+						<div class="form-check">
+						  	<input class="form-check-input" type="checkbox" ${filterEditItem == 'True' ? 'checked' : ''}
+						  		name="filterEditItem">
+						  	<label class="form-check-label" for="flexCheckDefault">
+							Editar coluna Item
+						  	</label>
 						</div>
 					</form>
 
@@ -252,7 +263,7 @@ th {
 	<form action="/controle-pessoal/movement.saveItem"
 						method="post">
 		<div class="form-group col"
-			style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">
+			style="display: ${filterEditItem ? '' : 'none'}">
 			<br>
 			<input class="btn btn-success" type="submit" value="Salvar">
 		</div>
@@ -270,7 +281,7 @@ th {
 			<th>Item Orçamento</th>
 			<th>Rateio</th>
 			<th>Valor Total</th>
-			<th style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">Item</th>
+			<th style="display: ${filterEditItem ? '' : 'none'}">Item</th>
 			<th>Actions</th>
 		</thead>
 		<tbody>
@@ -286,9 +297,10 @@ th {
 					<td>${movement.grpItem}-${movement.codItem}&nbsp;&nbsp;</td>
 					<td>${movement.splitted == '0' ? 'False' : 'True'}&nbsp;&nbsp;</td>
 					<td>${movement.valTotal}&nbsp;&nbsp;</td>
-					<td style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}">
+					<!-- filterBudgetItem == 'undefined' -->
+					<td style="display: ${filterEditItem ? '' : 'none'}">
 						<div class="col-sm">
-								<select style="display: ${filterBudgetItem == 'undefined' ? '' : 'none'}"
+								<select style="display: ${filterEditItem ? '' : 'none'}"
 									class="form-control" name="movementId=${movement.id}">
 								<option value="0">A definir</option>
 									<c:forEach items="${budgetItemList}" var="budgetItem">
@@ -300,9 +312,9 @@ th {
 					&nbsp;&nbsp;</td>
 
 					<td><a class="btn btn-primary btn-xs"
-						href="/controle-pessoal/movement.update?id=${movement.id}">A</a>
+						href="/controle-pessoal/movement.update?id=${movement.id}">Alt</a>
 						<a class="btn btn-danger btn-xs"
-						href="/controle-pessoal/movement.delete?id=${movement.id}">D</a>
+						href="/controle-pessoal/movement.delete?id=${movement.id}">Del</a>
 					</td>
 				</tr>
 			</c:forEach>

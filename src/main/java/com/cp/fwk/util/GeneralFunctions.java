@@ -15,6 +15,7 @@ public class GeneralFunctions {
 			"Cartão Crédito - NuBank Jaque", "Cartão Crédito - Porto Seguro" };
 	public static final String GAIN = "GAIN";
 	public static final String LOSS = "LOSS";
+	private static long lastTime = 0;
 
 	public static String stringDatetoSql(String date) {
 		if (date == null) {
@@ -129,14 +130,15 @@ public class GeneralFunctions {
 		return Double.valueOf(df.format(d));
 	}
 	
-	private static long lastTime = 0;
 	public static void showCurrentTimestamp(int i) {
 		long now = System.currentTimeMillis();
 		if (lastTime == 0) {
 			lastTime = now;
 		}
-		System.out.print("Step: " + i + " - " + new Timestamp(now));
-		System.out.println(" - " + ((now - lastTime)) + " segundos após.");
+		if (showLog) {
+			System.out.print("Step: " + i + " - " + new Timestamp(now));
+			System.out.println(" - " + ((now - lastTime)) + " segundos após.");
+		}
 		lastTime = now;
 	}
 

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -82,8 +83,9 @@ public class BudgetItemController extends BaseControllerImpl {
 			budgetItem.setId(intIdParam);
 			DataManager.updateId(BudgetItem.class, budgetItem);
 			
-			// Altera movimentação caso houve alteração da descrição.
-			if (!beforeBudgetItem.getCodItem().equals(budgetItem.getCodItem())) {
+			// Altera movimentação caso houve alteração da descrição ou grupo
+			if (!beforeBudgetItem.getCodItem().equals(budgetItem.getCodItem()) ||
+					!beforeBudgetItem.getGrpItem().equals(budgetItem.getGrpItem())) {
 				updateCodItemMovement(beforeBudgetItem, budgetItem);
 			}
 		}		
@@ -97,7 +99,8 @@ public class BudgetItemController extends BaseControllerImpl {
 		movList = Arrays.asList((Movement[]) DataManager.selectList(Movement[].class, qp));
 		
 		movList.forEach(mov -> mov.setCodItem(toBudgetItem.getCodItem()));
-		
+		movList.forEach(mov -> mov.setGrpItem(toBudgetItem.getGrpItem()));
+
 		DataManager.updateId(Movement.class, movList);
 	}
 	@Override

@@ -89,8 +89,8 @@ public class DataManager {
 		Field[] fields = clazz.getDeclaredFields();
 		int countReg = 0;
 
-		System.out.println();
-		System.out.println(sql);
+		GeneralFunctions.showLog("");
+		GeneralFunctions.showLog(sql);
 		GeneralFunctions.showCurrentTimestamp(1001);
 		if (connect()) {
 			GeneralFunctions.showCurrentTimestamp(1002);
@@ -135,7 +135,7 @@ public class DataManager {
 					jsonBuilder.append("}");
 				}
 				GeneralFunctions.showCurrentTimestamp(1004);
-				System.out.println(countReg + " registros.");
+				GeneralFunctions.showLog(countReg + " registros.");
 			} catch (SQLException e) {
 				GeneralFunctions.showLog(e.getMessage());
 			}
@@ -145,7 +145,7 @@ public class DataManager {
 		return jsonBuilder.toString();
 	}
 
-	public static void insert(final Class clazz, List obj) {
+	public static int insert(final Class clazz, List obj) {
 
 		int topId = selectTopId(clazz);
 
@@ -167,11 +167,13 @@ public class DataManager {
 				// conn.rollback();
 				GeneralFunctions.showLog("Erro Insert: " + sql);
 				GeneralFunctions.showLog(e.getMessage());
+				topId = -1;
 			}
 
 			disconnect();
 		}
 
+		return topId;
 	}
 
 	public static void updateId(final Class clazz, Object obj) {

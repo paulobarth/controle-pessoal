@@ -7,7 +7,12 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import com.cp.fwk.data.DataManager;
+import com.cp.fwk.util.GeneralFunctions;
+import com.cp.fwk.util.model.QueryParameter;
+import com.cp.fwk.util.query.QueryTypeCondition;
+import com.cp.fwk.util.query.QueryTypeFilter;
 import com.cp.model.Budget;
+import com.cp.model.BudgetItem;
 
 public class BudgetController extends BaseControllerImpl {
 
@@ -18,8 +23,42 @@ public class BudgetController extends BaseControllerImpl {
 			request.getRequestDispatcher("/WEB-INF/views/budget.jsp").forward(request, response);
 		} else if (option.equals("item")) {
 			response.sendRedirect("/controle-pessoal/budgetItem.list?budgetId=" + request.getParameter("id"));
+		} else if (option.equals("duplicate")) {
+			duplicate();
+			response.sendRedirect("/controle-pessoal/budget.list");
 		} else {
 			response.sendRedirect("/controle-pessoal/budget.list");
+		}
+	}
+
+	private void duplicate() {
+		Budget budget = DataManager.selectId(Budget.class, Integer.parseInt(request.getParameter("id")));
+		
+		budget.setCodBudget(budget.getCodBudget() + " Copy");
+
+		String today = GeneralFunctions.sqlDateToString(GeneralFunctions.getTodaySqlDate());
+
+		budget.setDatIni(today);
+		budget.setDatEnd(today);
+		
+		List<Budget> lBudget = new ArrayList<Budget>();
+		lBudget.add(budget);
+		int newBudgetId = DataManager.insert(Budget.class, lBudget) + 1;
+		
+//		Copiar itens
+		QueryParameter qp = new QueryParameter();
+		qp.addSingleNotEmptyParameter("idBudget", QueryTypeFilter.EQUAL, String.valueOf(budget.getId()), QueryTypeCondition.AND);
+		BudgetItem[] budgetItemList = DataManager.selectList(BudgetItem[].class, qp);
+
+		List<BudgetItem> lBudgetItem = new ArrayList<BudgetItem>();
+
+		for (BudgetItem item : budgetItemList) {
+			lBudgetItem.clear();
+			item.setIdBudget(newBudgetId);
+			item.setSeqOrder(item.getSeqOrder() + 100);
+			
+			lBudgetItem.add(item);
+			DataManager.insert(BudgetItem.class, lBudgetItem);
 		}
 	}
 

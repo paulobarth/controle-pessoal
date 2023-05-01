@@ -2,6 +2,7 @@ package com.cp.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -47,7 +48,7 @@ public class MovementController extends BaseControllerImpl {
 			}
 		}
 
-		if (option.equals("list") || option.equals("filter") || option.equals("update") || option.equals("saveItem")) {
+		if (option.equals("list") || option.equals("filter") || option.equals("update") || option.equals("saveItem") || option.equals("split")) {
 			request.getRequestDispatcher("/WEB-INF/views/movement.jsp").forward(request, response);
 		} else {
 			response.sendRedirect("/controle-pessoal/movement.list");
@@ -70,12 +71,6 @@ public class MovementController extends BaseControllerImpl {
 				movement.setCodItem(content[1]);
 				
 				DataManager.updateId(Movement.class, movement);
-
-				System.out.print(itemMap);
-				System.out.print(" || ");
-				System.out.println(content[0]);
-				System.out.print(" || ");
-				System.out.println(content[1]);
 			}
 		}
 		sendMapFilterParametersToRequest();
@@ -89,9 +84,11 @@ public class MovementController extends BaseControllerImpl {
 		setBudgetItemListAttribute(request);
 
 		QueryParameter qp = new QueryParameter();
+
+		String today = GeneralFunctions.stringDatetoSql("01/01/" + Calendar.getInstance().get(Calendar.YEAR));
+
 		qp.addBetweenParameter("datMovement",
-				new String[] { GeneralFunctions.stringDatetoSql("01/01/2021"),
-						GeneralFunctions.stringDatetoSql("01/01/2021") },
+				new String[] {today , today},
 				QueryTypeCondition.AND);
 
 		Movement[] movementList = DataManager.selectList(Movement[].class, qp);
@@ -170,6 +167,8 @@ public class MovementController extends BaseControllerImpl {
 		Movement[] movementList = DataManager.selectList(Movement[].class, getQueryParameters());
 		request.setAttribute("movementList", movementList);
 		movementFilteredList = movementList;
+		String value = request.getParameter("filterEditItem");
+		request.setAttribute("filterEditItem", value != null ? true : false);
 	}
 
 	private QueryParameter getQueryParameters() {

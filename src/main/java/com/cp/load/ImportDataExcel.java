@@ -247,6 +247,36 @@ public class ImportDataExcel {
 			movement.setDatFinancial(datFinancial);
 			movement.setValTotal(movement.getValMovement());
 			movement.setOrigin(origin);
+			
+//			String description = movement.getDescription();
+//
+//			String partIni = description.substring(description.length() - 7, description.length() - 6);
+//			String partFim = description.substring(description.length() - 1, description.length());
+//
+//			if (partIni.equals("(") && partFim.equals(")")) {
+//				
+//				String partMiddle = description.substring(description.length() - 6, description.length() - 1);
+//				
+//				String[] parc = partMiddle.split("/");
+//				
+//				if (!parc[0].equals(parc[1])) {
+//					
+//					int ini = Integer.parseInt(parc[0]) + 1;
+//					int fim = Integer.parseInt(parc[1]);
+//					
+//					System.out.println(movement.getDescription());
+//					for (int i = ini; i <= fim; i++) {
+//						String.format("%02d", i);
+//						Movement movementParc = new Movement(movement, i);
+//
+//						
+//						if (isMovementUnique(movementParc)) {
+//							lMovement.add(movementParc);
+//						}
+//						System.out.println(i);
+//					}
+//				}
+//			}
 
 			if (isMovementUnique(movement)) {
 				lMovement.add(movement);

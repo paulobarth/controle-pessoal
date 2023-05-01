@@ -357,15 +357,7 @@ public class StocksOperationController extends BaseControllerImpl {
 	}
 
 	private void updateStockOperationResultSell(StocksOperation stockOperation) {
-		DataManager.updateId(StocksOperation.class, stockOperation);
-		System.out.println("Result Sell Update: " +
-				stockOperation.getCodStock() + "  |  " +
-				stockOperation.getDatOperation() + "  |  " +
-				stockOperation.getTypeOperation() + "  |  " +
-				stockOperation.getValResultSell() + "  |  "
-				);
-		
-		
+		DataManager.updateId(StocksOperation.class, stockOperation);		
 	}
 
 	private static void addActualPosition(List<StocksReportActualPosition> listActualPosition,
